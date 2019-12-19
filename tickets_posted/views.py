@@ -49,6 +49,31 @@ def load_demanded_users(request):
         data_dict = {"html_from_view": html}
         return JsonResponse(data=data_dict, safe=False)
 
+
+def load_matched_users(request):
+    if request.method=='GET':
+        ticket_id = request.GET.get('ticket_id')
+        temp_ticket = Ticket.objects.get(id=ticket_id)
+        print(temp_ticket.arrival_airport)
+        print(temp_ticket.flight_number)
+        print(temp_ticket.date)
+        print(temp_ticket.time)
+        print(temp_ticket.is_giver)
+        query_role='giver'
+        if(temp_ticket.is_giver=='giver'):
+            query_role = 'taker'
+
+        submitted_tickets = Ticket.objects.filter(arrival_airport=temp_ticket.arrival_airport, flight_number=temp_ticket.flight_number, date=temp_ticket.date, time=temp_ticket.time, is_giver=query_role)
+        
+        print(submitted_tickets)
+
+        html = render_to_string(
+            template_name="tickets_posted/demanded_users.html", context={"submitted_tickets": submitted_tickets}
+            )
+        data_dict = {"html_from_view": html}
+        return JsonResponse(data=data_dict, safe=False)
+
+
 @login_required
 def user_submitted_tickets(request):
     all_tickets_submitted = Ticket.objects.filter(author=request.user)

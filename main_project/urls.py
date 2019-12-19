@@ -22,6 +22,7 @@ urlpatterns = [
     # path("airports_departure/", tickets_posted_views.load_airports_departure, name="airports_departure"),
     path("airports_arrival/", tickets_posted_views.load_airports_arrival, name="airports_arrival"),
     path("create/new/ticket/", tickets_posted_views.load_demanded_users, name="demanded_users"),
+    path("find-all-matched-users/", tickets_posted_views.load_matched_users, name="matched_users"),
     # path("ticket-info-submitted/", tickets_posted_views.hello, name="ticket_info_submitted"),
 ]
 

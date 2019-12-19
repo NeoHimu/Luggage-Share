@@ -21,6 +21,7 @@
    	<script type="text/javascript">
    		$("#arrivalAirportList li").click(function() {
    			console.log(this.id);
+   			//arrival-airport: id of the textbox where user is typing the query
    			$("#arrival-airport").val($(this).find('#lower_div_airport_name').text());
    			console.log($("#arrival-airport").val());
    			$("#arrival-airport-search-result").html("");

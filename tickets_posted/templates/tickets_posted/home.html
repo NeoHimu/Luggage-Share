@@ -1,17 +1,47 @@
 {% extends 'tickets_posted/base.html' %}
 
 {% block content %}
+{% if posts %}
+<ul style="list-style-type:none" id="currentUserTicketList">
 	{% for post in posts %}
-		<article class="media content-section content-box">
-		  <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
-		  <div class="media-body">
-		    <div class="article-metadata content-box">
-		      <a class="mr-2" href="#">{{ post.author.username }}</a>
-		      <small class="text-muted">{{ post.date_posted }}</small>
-		    </div>
-		    <h2><a class="article-title" href="#">{{ post.arrival_airport }}</a></h2>
-		    <p class="article-content">{{ post.flight_number }}</p>
-		  </div>
-		</article>
+		<li id="{{forloop.counter}}">
+			<article class="media content-section content-box">
+			  <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+			  <div class="media-body">
+			    <div class="article-metadata content-box">
+			      <a class="mr-2" href="#">{{ post.author.username }}</a>
+			      <small class="text-muted">{{ post.date_posted }}</small>
+			    </div>
+			    <h2><a id="arrival-airport" class="article-title" href="#">{{ post.arrival_airport }}</a></h2>
+			    <p id="flight-number" class="article-content">{{ post.flight_number }}</p>
+			    <p id="is-giver" class="article-content">{{ post.is_giver }}</p>
+			    <p hidden id="current-ticket-id" class="article-content">{{ post.id }}</p>
+			    <p id="departure-date" class="article-content">{{ post.date }}</p>
+			    <p id="departure-time" class="article-content">{{ post.time }}</p>
+			  </div>
+			</article>
+		</li>
 	{% endfor %}
+</ul>
+	<script type="text/javascript">
+		const matched_users = $('#demanded-users');
+   		$("#currentUserTicketList li").click(function() {
+   			console.log(this.id);
+   			console.log($(this).find('#current-ticket-id').text());
+   			$.ajax({
+			url: '/find-all-matched-users/', //ajax call will be made to this url
+			type: 'get',
+			data:{
+				ticket_id:$(this).find('#current-ticket-id').text(),
+			},
+			dataType: "json",
+			success: function(response){
+				// alert("Successful!");
+				// console.log(response['html_from_view']);
+				matched_users.html(response['html_from_view'])
+			}
+			});
+		});
+   	</script>
+ {% endif %}
 {% endblock %}
