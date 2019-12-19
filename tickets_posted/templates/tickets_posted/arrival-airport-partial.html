@@ -1,0 +1,30 @@
+{% if airports %}
+	<ul style="list-style-type:none" id="arrivalAirportList">
+		  {% for airport in airports %}
+		  <li id="{{forloop.counter}}">
+			  <div class="list-item-airport" id="upper_div">
+		       	<div id="lower_div_airport_name"> {{airport.name|capfirst}} </div>
+		       	<div class="text-muted">
+		       	 <p style="text-align:left;">
+				    {{airport.code|upper}}
+				    <span style="float:right;">
+				    {{airport.city|capfirst}}
+				    </span>
+				</p>
+		       	</div>
+		      </div>
+		      <hr>
+		  </li>
+   		  {% endfor %}
+	</ul>
+
+   	<script type="text/javascript">
+   		$("#arrivalAirportList li").click(function() {
+   			console.log(this.id);
+   			$("#arrival-airport").val($(this).find('#lower_div_airport_name').text());
+   			console.log($("#arrival-airport").val());
+   			$("#arrival-airport-search-result").html("");
+		});
+   	</script>
+
+{% endif %}

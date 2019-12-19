@@ -1,0 +1,30 @@
+{% if submitted_tickets %}
+	<ul style="list-style-type:none" id="departureAirportList">
+		  {% for ticket in submitted_tickets %}
+				  <li id="{{forloop.counter}}">
+				  	<div class="list-item-airport" id="upper_div">
+				       	<div id="lower_div_airport_name"> {{ticket.author.username}} </div>
+				       	<div class="text-muted">
+				       	 <p style="text-align:left;">
+						    <bold>{{ticket.author.email}}</bold>
+						</p>
+				       	</div>
+			       	</div>
+			       	<hr>
+			      </li>
+   		  {% endfor %}
+   	</ul>
+
+<!--    	<script type="text/javascript">
+   		$("#departureAirportList li").click(function() {
+   			console.log(this.id);
+   			$("#departure-airport").val($(this).find('#lower_div_airport_name').text()); 
+   			// departure-airport is id of the input textfield
+   			console.log($("#departure-airport").val());
+   			$("#departure-airport-search-result").html("");
+   			// departure-airport-search-result is id of div element that contains the search result
+		});
+   	</script> -->
+{% else %}
+	<h3>Does cab take lots of your money?</h3>
+{% endif %}

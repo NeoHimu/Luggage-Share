@@ -9,7 +9,12 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" /> 
+
 	<link rel="stylesheet" type="text/css" href="{% static 'tickets_posted/main.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'tickets_posted/temp.css' %}">
+	<script src="{% static 'tickets_posted/javascript/jquery-3.4.1.min.js' %}"></script>
+
 	{% if title %}
 		<title>{{title}}</title>
 	{% else %}
@@ -19,21 +24,21 @@
 <body>
 
 	<header class="site-header">
-	  <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+	  <nav class="navbar navbar-expand-md nav-bar-modified bg-steel fixed-top">
 	    <div class="container">
-	      <a class="navbar-brand mr-4" href="{% url 'ticket-home' %}">Django Blog</a>
+	      <a class="navbar-brand brand mr-4" href="{% url 'ticket-home' %}">App</a>
 	      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
 	      <span class="navbar-toggler-icon"></span>
 	      </button>
 	      <div class="collapse navbar-collapse" id="navbarToggle">
 	        <div class="navbar-nav mr-auto">
-	          <a class="nav-item nav-link" href="{% url 'ticket-home' %}">Home</a>
+	          <!-- <a class="nav-item nav-link" href="{% url 'ticket-home' %}">Contact Us</a> -->
 	          <a class="nav-item nav-link" href="{% url 'ticket-about' %}">About</a>
 	        </div>
 	        <!-- Navbar Right Side -->
 	        <div class="navbar-nav">
 	        	{% if user.is_authenticated %}
-	        	  <a class="nav-item nav-link" href="{% url 'ticket-create' %}">Add Flight Details</a>
+	        	  <a class="nav-item nav-link" href="">Add Flight Details</a>
      			  <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
      			  <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
 		        {% else %}
@@ -56,20 +61,28 @@
 	      		</div>
 	      	{% endfor %}
 	      {% endif %}
+	      <div id="demanded-users" class="col-md-8">{% include 'tickets_posted/demanded_users.html' %}</div>
 	      {% block content %}{% endblock %}
 	      
 	    </div>
 	    <div class="col-md-4">
-	      <div class="content-section">
-	        <h3>Our Sidebar</h3>
-	        <p class='text-muted'>You can put any information here you'd like.
-	          <ul class="list-group">
-	            <li class="list-group-item list-group-item-light">Latest Posts</li>
-	            <li class="list-group-item list-group-item-light">Announcements</li>
-	            <li class="list-group-item list-group-item-light">Calendars</li>
-	            <li class="list-group-item list-group-item-light">etc</li>
-	          </ul>
-	        </p>
+	      <div class="content-section content-box">
+	        <h3 id="search-icon">Ticket Info</h3>	      
+	        <form method="post" id="ticket-info-form">
+	        	{% csrf_token %}
+	            <!-- <input id="departure-airport" class="round-corner" type="text" name="departure" placeholder="FROM"></li>
+	            <div id="departure-airport-search-result" class="col-md-4">{% include 'tickets_posted/departure-airport-partial.html' %}</div> -->
+	            <input id="arrival-airport" class="round-corner" type="text" name="departure" placeholder="Where are you going?"></li>
+	            <div id="arrival-airport-search-result" class="col-md-4">{% include 'tickets_posted/arrival-airport-partial.html' %}</div>
+	            <input id="flight-number" class="round-corner" type="text" placeholder="Flight Number"></li>
+	            <label class="text-muted dep-date-time-text">Departure Date</label> <input id="departure-date" class="date" type="date"> </li>
+	            <label class="text-muted dep-date-time-text">Departure Time</label> <input class="time" type="time" id="departure-time" value="13:30"> </li><br>
+	       		<label class="text-muted giver-taker-text">I'm a luggage </label> <select id="is-giver">
+                <option value="giver" selected>  giver </option>
+                <option value="taker"> taker </option>
+				</select></li>
+	       		<input class="form-submit-button" type="submit" value="Submit">
+	       	</form> 
 	      </div>
 	    </div>
 	  </div>
@@ -79,6 +92,9 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"> </script> 
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="{% static 'tickets_posted/javascript/main.js' %}"></script>
 
 </body>
 </html>

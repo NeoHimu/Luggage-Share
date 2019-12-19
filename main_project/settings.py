@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY=os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = (os.environ.get('DEBUG') == 'True')
+DEBUG = True#(os.environ.get('DEBUG') == 'True')
 
-ALLOWED_HOSTS = ['ployed.herokuapp.com']
+ALLOWED_HOSTS = []#['ployed.herokuapp.com']
 
 
 # Application definition
@@ -133,7 +133,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-LOGIN_REDIRECT_URL = 'ticket-home'
+LOGIN_REDIRECT_URL = '/homepage'
 
 LOGIN_URL = 'login'
 

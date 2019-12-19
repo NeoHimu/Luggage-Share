@@ -4,6 +4,7 @@ from users import views as user_views
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
+from tickets_posted import views as tickets_posted_views
 
 
 urlpatterns = [
@@ -17,7 +18,15 @@ urlpatterns = [
 	path('password-reset-confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='users/password_reset_confirm.html'), name='password_reset_confirm'),
 	path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'), name='password_reset_complete'),    
     path('admin/', admin.site.urls),
+
+    # path("airports_departure/", tickets_posted_views.load_airports_departure, name="airports_departure"),
+    path("airports_arrival/", tickets_posted_views.load_airports_arrival, name="airports_arrival"),
+    path("create/new/ticket/", tickets_posted_views.load_demanded_users, name="demanded_users"),
+    # path("ticket-info-submitted/", tickets_posted_views.hello, name="ticket_info_submitted"),
 ]
 
 if settings.DEBUG:
 	urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+

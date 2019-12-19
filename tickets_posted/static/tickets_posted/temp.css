@@ -1,0 +1,152 @@
+.round-corner{
+	border-radius: 5px;
+	height: 30px;
+  	width: 310px;
+  	padding-top: 15px;
+  	padding-bottom: 15px;
+  	padding-left: 10px;
+  	margin-top: 5px;
+  	margin-bottom: 5px;	
+    border-color: #e1eaf7;
+    border-width: thin;
+}
+
+
+.is-giver{
+  border-radius: 5px;
+  height: 30px;
+    width: 310px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-left: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px; 
+    border-color: #e1eaf7;
+    border-width: thin;
+}
+
+.dep-date-time-text{
+  font: bold 15px arial, sans-serif;
+  color: #96b5e0;
+}
+
+.giver-taker-text{
+  font: bold 15px arial, sans-serif;
+  color: #96b5e0;
+}
+
+.list-item-airport{
+	height: 30px;
+	width: 310px;
+  	padding-right: 15px;
+    border-color: #e1eaf7;
+    font-size: 16px;
+}
+
+.round-corner:focus{
+    outline:none;
+    border-color:#0066A2;
+}
+
+.date{
+  color: #96b5e0;
+}
+
+.time{
+  color: #96b5e0;
+}
+
+.brand{
+	color: white;
+}
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #96b5e0;
+  opacity: 1; /* Firefox */
+}
+
+.btn-filled{
+	background: #0066A2;
+	color: white;
+}
+
+.btn-unfilled{
+	border-color: #0066A2;
+	color: #0066A2;
+}
+
+.btn-filled:hover
+{
+background-image:none !important;
+background-color:#3d7cd4 !important;
+}
+
+.btn-unfilled:hover
+{
+background-image:none !important;
+background-color:#3d7cd4 !important;
+}
+
+
+.content-box{
+	border-color: #e1eaf7;
+}
+
+.form-submit-button {
+
+background: #0066A2;
+border-radius: 5px;
+
+color: white;
+
+border-style: outset;
+
+border-color: #0066A2;
+
+height: 50px;
+
+width: 100px;
+
+font: bold 15px arial, sans-serif;
+
+text-shadow:none;
+margin-left: 100px;
+
+}
+
+.nav-bar-modified{
+background: #0066A2;
+
+color: white;
+
+border-style: outset;
+
+border-color: #0066A2;
+
+/*height: 00px;*/
+
+font: bold 15px arial, sans-serif;
+
+text-shadow:none;
+}
+
+.selected {
+    background-color: blue;
+}
+
+ul { padding-left: 0; }
+
+/* for search result*/
+@keyframes blinker {
+    from {opacity: 1.0;}
+    to {opacity: 0.5;}
+  }
+  
+.blink {
+    text-decoration: blink;
+    animation-name: blinker;
+    animation-duration: 0.4s;
+    animation-iteration-count:infinite;
+    animation-timing-function:ease-in-out;
+    animation-direction: alternate;
+  }
