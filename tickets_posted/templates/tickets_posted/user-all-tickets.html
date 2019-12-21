@@ -1,0 +1,26 @@
+{% if posts %}
+	<div id="divCurrentUserAllTickets">
+	<ul style="list-style-type:none" id="currentUserTicketList">
+		{% for post in posts %}
+			<li id="{{forloop.counter}}">
+				<article class="media content-section content-box">
+				  <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+				  <div class="media-body">
+				    <div class="article-metadata content-box">
+				      <a class="mr-2" href="#">{{ post.author.username }}</a>
+				      <small class="text-muted">{{ post.date_posted }}</small>
+				    </div>
+				    <h2><a id="user-arrival-airport" class="article-title" href="#">{{ post.arrival_airport }}</a></h2>
+				    <p id="user-flight-number" class="article-content">{{ post.flight_number }}</p>
+				    <p id="user-is-giver" class="article-content">{{ post.is_giver }}</p>
+				    <p hidden id="current-user-ticket-id" class="article-content">{{ post.id }}</p>
+				    <p id="user-departure-date" class="article-content">{{ post.date }}</p>
+				    <p id="user-departure-time" class="article-content">{{ post.time }}</p>
+				  </div>
+				</article>
+			</li>
+		{% endfor %}
+	</ul>
+	</div>
+{% endif %}
+

@@ -16,9 +16,10 @@ from django.template.loader import render_to_string
 from django.http import JsonResponse
 
 def home(request):
-    posts = Ticket.objects.all()
-    return render(request, 'tickets_posted/base.html', {"posts":posts})
-
+    if(request.user.is_authenticated):
+        all_tickets_submitted = Ticket.objects.filter(author=request.user)
+        return render(request, 'tickets_posted/base.html', {'posts':all_tickets_submitted, 'welcome_messsage':''})
+    return render(request, 'tickets_posted/base.html', {'posts':'', 'welcome_messsage':'Welcome message!'})
 
 def load_demanded_users(request):
     if request.method=='POST':
@@ -74,14 +75,9 @@ def load_matched_users(request):
         return JsonResponse(data=data_dict, safe=False)
 
 
-@login_required
-def user_submitted_tickets(request):
-    all_tickets_submitted = Ticket.objects.filter(author=request.user)
-    return render(request, 'tickets_posted/home.html', {'posts':all_tickets_submitted})
-
-@login_required
-def userhomepage(request):
-    return redirect(user_submitted_tickets)
+# @login_required
+# def userhomepage(request):
+#     return redirect(home)
 
 
 # def hello(request):
@@ -173,7 +169,8 @@ def load_airports_arrival(request):
     if url_parameter:
         airports_1 = Airport.objects.filter(name__icontains=url_parameter)
         airports_2 = Airport.objects.filter(city__icontains=url_parameter)
-        airports = airports_1 | airports_2        
+        airports_3 = Airport.objects.filter(code__icontains=url_parameter)
+        airports = airports_1 | airports_2 | airports_3       
     else:
         airports = {}#= Airport.objects.all()
 

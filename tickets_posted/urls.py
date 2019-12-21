@@ -12,8 +12,8 @@ from . import views
 urlpatterns = [
 	path('', views.home, name='ticket-home'),	
 	# homepage/ is a login redirect url => original work done in yourhomepage/ url
-	path('homepage/', views.userhomepage, name='user-homepage'),
-	path('yourhomepage/', views.user_submitted_tickets, name='user_submitted_tickets'),
+	# path('homepage/', views.userhomepage, name='user-homepage'),
+	# path('yourhomepage/', views.user_submitted_tickets, name='user_submitted_tickets'),
 	# path('', TicketListView.as_view(), name='ticket-home'),	
 	# path('user/<str:username>/', UserTicketListView.as_view(), name='user-tickets'),	
 	# path('ticket/<int:pk>/', TicketDetailView.as_view(), name='ticket-detail'),	

@@ -52,19 +52,20 @@
 	</header>
 
 	<main role="main" class="container">
-	  <div class="row">
-	    <div class="col-md-8">
-	      {% if messages %}
-	      	{% for message in messages %}
-	      		<div class="alert alert-{{message.tags}}">
-	      			{{message}}
-	      		</div>
-	      	{% endfor %}
-	      {% endif %}
-	      <div id="demanded-users" class="col-md-8">{% include 'tickets_posted/demanded_users.html' %}</div>
-	      {% block content %}{% endblock %}
-	      
-	    </div>
+		  <div class="row">
+		 <div class="col-md-8">
+		      {% if messages %}
+		      	{% for message in messages %}
+		      		<div class="alert alert-{{message.tags}}">
+		      			{{message}}
+		      		</div>
+		      	{% endfor %}
+		      {% endif %}
+		      <h3>{{welcome_messsage}}</h3>
+		      <div id="all-tickets-submitted" class="col-md-8">{% include 'tickets_posted/user-all-tickets.html' %}</div>
+		      <div id="demanded-users" class="col-md-8">{% include 'tickets_posted/demanded_users.html' %}</div>
+		      {% block content %}{% endblock %}
+		 </div>
 	    <div class="col-md-4">
 	      <div class="content-section content-box">
 	        <h3 id="search-icon">Ticket Info</h3>	      
@@ -85,6 +86,7 @@
 	       	</form> 
 	      </div>
 	    </div>
+
 	  </div>
 	</main>
 	<!-- Optional JavaScript -->
