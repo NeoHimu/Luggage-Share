@@ -16,7 +16,6 @@ const divCurrentUserAllTickets = $('#divCurrentUserAllTickets');
 
 
 let ajax_call_arrival = function (endpoint_arrival, request_parameters) {
-	console.log(endpoint_arrival);
 	$.getJSON(endpoint_arrival, request_parameters)
 		.done(response => {
 			// fade out the airports_div, then:
@@ -47,6 +46,9 @@ $('#arrival-airport').keyup(delay(function (e) {
 	const request_parameters = {
 		q: $(this).val() // value of user_input: the HTML element with ID user-input
 	}
+	// makes sure that users type 3 characters to make query search
+	if($(this).val().length<3)
+		return;
 	// start animating the search icon with the CSS class
 	search_icon.addClass('blink')
 
@@ -58,7 +60,7 @@ $('#arrival-airport').keyup(delay(function (e) {
 	// setTimeout returns the ID of the function to be executed
 	scheduled_function = setTimeout(ajax_call_arrival, delay_by_in_ms, endpoint_arrival, request_parameters)
 
-	}, 500)); //adds delay of 200 ms
+	}, 300)); //adds delay of 300 ms
 
 // user_input_arrival.on('keyup', function () {
 
