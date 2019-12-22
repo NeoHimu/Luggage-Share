@@ -18,6 +18,7 @@ urlpatterns = [
 	path('password-reset-confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='users/password_reset_confirm.html'), name='password_reset_confirm'),
 	path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'), name='password_reset_complete'),    
     path('admin/', admin.site.urls),
+    path('^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', user_views.activate, name='activate'),
 
     # path("airports_departure/", tickets_posted_views.load_airports_departure, name="airports_departure"),
     path("airports_arrival/", tickets_posted_views.load_airports_arrival, name="airports_arrival"),
