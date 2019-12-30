@@ -7,14 +7,12 @@ from django.shortcuts import render, redirect
 
 
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=User, dispatch_uid='save_new_user_profile')
 def create_profile(sender, instance, created, **kwargs):
 	if created:
-		Profile.objects.create(user=instance)
+		Profile(user=instance).save()
 
 
-
-
-@receiver(post_save, sender=User)
-def save_profile(sender, instance, **kwargs):
-	instance.profile.save()
+# @receiver(post_save, sender=User)
+# def save_profile(sender, instance, **kwargs):
+# 	instance.profile.save()

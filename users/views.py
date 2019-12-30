@@ -28,7 +28,7 @@ def register(request):
 			email = form.cleaned_data.get('email')
 			#messages.success(request, 'Your account has been created. Please login to continue.')
 			current_site = get_current_site(request)
-			mail_subject = 'Activate your blog account.'
+			mail_subject = 'Activate your account.'
 			message = render_to_string('users/acc_active_email.html', {
 				'user': user,
 				'domain': current_site.domain,

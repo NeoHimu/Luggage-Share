@@ -28,8 +28,6 @@ DEBUG = True#(os.environ.get('DEBUG') == 'True')
 ALLOWED_HOSTS = []#['ployed.herokuapp.com']
 
 
-# Application definition
-
 INSTALLED_APPS = [
     # created apps
     'tickets_posted.apps.TicketsPostedConfig',
@@ -56,6 +54,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'main_project.urls'
+ASGI_APPLICATION = "main_project.routing.application"
 
 TEMPLATES = [
     {
@@ -161,3 +160,4 @@ django_heroku.settings(locals())
 AUTHENTICATION_BACKENDS = (
     'users.backends.EmailBackend',
     )
+
