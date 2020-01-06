@@ -20,7 +20,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', user_views.activate, name='activate'),
 
-    # path("airports_departure/", tickets_posted_views.load_airports_departure, name="airports_departure"),
+    path("airports_departure/", tickets_posted_views.load_airports_departure, name="airports_departure"),
     path("airports_arrival/", tickets_posted_views.load_airports_arrival, name="airports_arrival"),
     path("create/new/ticket/", tickets_posted_views.load_demanded_users, name="demanded_users"),
     path("find-all-matched-users/", tickets_posted_views.load_matched_users, name="matched_users"),

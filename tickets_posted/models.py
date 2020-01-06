@@ -5,6 +5,7 @@ from django.urls import reverse
 
 # Create your models here.
 class Ticket(models.Model):
+	departure_airport = models.CharField(max_length=100)
 	arrival_airport = models.CharField(max_length=100)
 	flight_number = models.CharField(max_length=10)
 	date = models.DateTimeField(default=timezone.now)

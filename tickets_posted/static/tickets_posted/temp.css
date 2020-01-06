@@ -1,6 +1,6 @@
 .round-corner{
-	border-radius: 5px;
-	height: 30px;
+	  border-radius: 5px;
+	  height: 30px;
   	width: 310px;
   	padding-top: 15px;
   	padding-bottom: 15px;
@@ -150,3 +150,21 @@ ul { padding-left: 0; }
     animation-timing-function:ease-in-out;
     animation-direction: alternate;
   }
+
+select {
+
+        width: 80px;
+        height: 30px;
+        border-radius: 5px;
+        font: bold 15px arial, sans-serif;
+        /*color: blue;*/
+
+}
+
+/*select:focus {
+
+        min-width: 100px;
+
+        width: auto;
+
+}    */

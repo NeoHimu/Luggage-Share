@@ -1,28 +1,24 @@
 {% if submitted_tickets %}
 	<ul style="list-style-type:none" id="departureAirportList">
-		  {% for ticket in submitted_tickets %}
-				  <li id="{{forloop.counter}}">
-				  	<div class="list-item-airport" id="upper_div">
-				       	<div id="lower_div_airport_name"> {{ticket.author.username}} </div>
-				       	<div class="text-muted">
-				       	 <p style="text-align:left;">
-						    <bold>{{ticket.author.email}}</bold>
-						</p>
-				       	</div>
-			       	</div>
-			       	<hr>
-			      </li>
-   		  {% endfor %}
-   	</ul>
-
-<!--    	<script type="text/javascript">
-   		$("#departureAirportList li").click(function() {
-   			console.log(this.id);
-   			$("#departure-airport").val($(this).find('#lower_div_airport_name').text()); 
-   			// departure-airport is id of the input textfield
-   			console.log($("#departure-airport").val());
-   			$("#departure-airport-search-result").html("");
-   			// departure-airport-search-result is id of div element that contains the search result
-		});
-   	</script> -->
+		{% for ticket in submitted_tickets %}
+			<li id="{{forloop.counter}}">
+				<article class="media content-section content-box">
+				  <img class="rounded-circle article-img" src="{{ ticket.author.profile.image.url }}">
+				  <div class="media-body">
+				    <div class="article-metadata content-box">
+				      <a class="mr-2" href="#">{{ ticket.author.username }}</a>
+				      <small class="text-muted">{{ ticket.date_posted }}</small>
+				    </div>
+				    <label id="user-departure-airport" class="text-muted"><b>From: </b>{{ ticket.departure_airport }} </label>
+				    <label id="user-arrival-airport" class="text-muted"><b>To: </b>{{ ticket.arrival_airport }} </label>
+				    <label id="user-flight-number" class="text-muted"><b>Flight no. </b>{{ ticket.flight_number }}</label>
+				    <p hidden id="current-user-ticket-id" class="article-content">{{ ticket.id }}</p>
+				    <label id="user-departure-date" class="text-muted"><b>Travel date: </b>{{ ticket.date }}</label>
+				    <label id="user-departure-time" class="text-muted"><b>Travel time: </b>{{ ticket.time }}</label>
+				    <p id="user-departure-email" class="article-content">Contact the luggage <b>{{ ticket.is_giver }}</b>: {{ticket.author.email}}</p>
+				  </div>
+				</article>
+			</li>
+		{% endfor %}
+	</ul>
 {% endif %}

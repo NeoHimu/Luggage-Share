@@ -21,7 +21,7 @@
 		<title>No title</title>
 	{% endif %}
 </head>
-<body>
+<body class="BaseClass">
 
 	<header class="site-header">
 	  <nav class="navbar navbar-expand-md nav-bar-modified bg-steel fixed-top">
@@ -38,7 +38,7 @@
 	        <!-- Navbar Right Side -->
 	        <div class="navbar-nav">
 	        	{% if user.is_authenticated %}
-	        	  <a class="nav-item nav-link" href="">Add Flight Details</a>
+	        	  <!-- <a class="nav-item nav-link" href="">Add Flight Details</a> -->
      			  <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
      			  <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
 		        {% else %}
@@ -71,17 +71,18 @@
 	        <h3 id="search-icon">Ticket Info</h3>	      
 	        <form method="post" id="ticket-info-form">
 	        	{% csrf_token %}
-	            <!-- <input id="departure-airport" class="round-corner" type="text" name="departure" placeholder="FROM"></li>
-	            <div id="departure-airport-search-result" class="col-md-4">{% include 'tickets_posted/departure-airport-partial.html' %}</div> -->
-	            <input id="arrival-airport" class="round-corner" type="text" name="departure" placeholder="Where are you going?"></li>
+	            <input id="departure-airport" class="round-corner text-muted dep-date-time-text" type="text" name="departure" placeholder="FROM">
+	            <div id="departure-airport-search-result" class="col-md-4">{% include 'tickets_posted/departure-airport-partial.html' %}</div>
+	            <input id="arrival-airport" class="round-corner text-muted dep-date-time-text" type="text" name="departure" placeholder="TO">
 	            <div id="arrival-airport-search-result" class="col-md-4">{% include 'tickets_posted/arrival-airport-partial.html' %}</div>
-	            <input id="flight-number" class="round-corner" type="text" placeholder="Flight Number"></li>
-	            <label class="text-muted dep-date-time-text">Departure Date</label> <input id="departure-date" class="date" type="date"> </li>
-	            <label class="text-muted dep-date-time-text">Departure Time</label> <input class="time" type="time" id="departure-time" value="13:30"> </li><br>
-	       		<label class="text-muted giver-taker-text">I'm a luggage </label> <select id="is-giver">
-                <option value="giver" selected>  giver </option>
-                <option value="taker"> taker </option>
-				</select></li>
+	            <input id="flight-number" class="round-corner text-muted dep-date-time-text" type="text" placeholder="Flight Number">
+	            <label class="text-muted dep-date-time-text">Departure Date</label> <input id="departure-date" class="date text-muted dep-date-time-text" type="date"> </li>
+	            <label class="text-muted dep-date-time-text">Departure Time</label> <input class="text-muted dep-date-time-text time" type="time" id="departure-time" value="13:30"> <br>
+	       		<label class="text-muted giver-taker-text">I have </label> <select id="is-giver">
+                <option value="giver" selected class="text-muted giver-taker-text">  excess </option>
+                <option value="taker" class="text-muted giver-taker-text"> less </option>
+				</select> <label class="text-muted giver-taker-text"> luggage </label> 
+				<p hidden id="is-user-loggedin">{{ user.is_authenticated }}</p>
 	       		<input class="form-submit-button" type="submit" value="Submit">
 	       	</form> 
 	      </div>

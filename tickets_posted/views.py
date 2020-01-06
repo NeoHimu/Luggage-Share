@@ -23,12 +23,14 @@ def home(request):
 
 def load_demanded_users(request):
     if request.method=='POST':
+        departure_airport = request.POST.get('departure_airport')
         arrival_airport = request.POST.get('arrival_airport')
         flight_number = request.POST.get('flight_number')
         date = request.POST.get('date')
         time = request.POST.get('time')
         is_giver = request.POST.get('is_giver')
         Ticket.objects.create(
+            departure_airport=departure_airport,
             arrival_airport=arrival_airport,
             flight_number = flight_number,
             date = date,
@@ -50,11 +52,12 @@ def load_demanded_users(request):
         data_dict = {"html_from_view": html}
         return JsonResponse(data=data_dict, safe=False)
 
-
+@login_required
 def load_matched_users(request):
     if request.method=='GET':
         ticket_id = request.GET.get('ticket_id')
         temp_ticket = Ticket.objects.get(id=ticket_id)
+        print(temp_ticket.departure_airport)
         print(temp_ticket.arrival_airport)
         print(temp_ticket.flight_number)
         print(temp_ticket.date)
@@ -64,7 +67,7 @@ def load_matched_users(request):
         if(temp_ticket.is_giver=='giver'):
             query_role = 'taker'
 
-        submitted_tickets = Ticket.objects.filter(arrival_airport=temp_ticket.arrival_airport, flight_number=temp_ticket.flight_number, date=temp_ticket.date, time=temp_ticket.time, is_giver=query_role)
+        submitted_tickets = Ticket.objects.filter(departure_airport=departure_airport ,arrival_airport=temp_ticket.arrival_airport, flight_number=temp_ticket.flight_number, date=temp_ticket.date, time=temp_ticket.time, is_giver=query_role)
         
         print(submitted_tickets)
 
@@ -141,25 +144,25 @@ def about(request):
 	return render(request, 'tickets_posted/about.html')
 
 
-# def load_airports_departure(request):
-#     ctx = {}
-#     url_parameter = request.GET.get("q")
+def load_airports_departure(request):
+    ctx = {}
+    url_parameter = request.GET.get("q")
 
-#     if url_parameter:
-#         airports_1 = Airport.objects.filter(name__icontains=url_parameter)
-#         airports_2 = Airport.objects.filter(city__icontains=url_parameter)
-#         airports = airports_1 | airports_2        
-#     else:
-#         airports = {}#= Airport.objects.all()
+    if url_parameter:
+        airports_1 = Airport.objects.filter(name__icontains=url_parameter)
+        airports_2 = Airport.objects.filter(city__icontains=url_parameter)
+        airports = airports_1 | airports_2        
+    else:
+        airports = {}#= Airport.objects.all()
 
-#     ctx["airports"] = airports
-#     if request.is_ajax():
+    ctx["airports"] = airports
+    if request.is_ajax():
 
-#         html = render_to_string(
-#             template_name="tickets_posted/departure-airport-partial.html", context={"airports": airports}
-#         )
-#         data_dict = {"html_from_view": html}
-#         return JsonResponse(data=data_dict, safe=False)
+        html = render_to_string(
+            template_name="tickets_posted/departure-airport-partial.html", context={"airports": airports[:5]}
+        )
+        data_dict = {"html_from_view": html}
+        return JsonResponse(data=data_dict, safe=False)
 
 
 def load_airports_arrival(request):
@@ -178,8 +181,7 @@ def load_airports_arrival(request):
     if request.is_ajax():
 
         html = render_to_string(
-            template_name="tickets_posted/arrival-airport-partial.html", context={"airports": airports}
+            template_name="tickets_posted/arrival-airport-partial.html", context={"airports": airports[:5]} #send only 5 results
         )
         data_dict = {"html_from_view": html}
         return JsonResponse(data=data_dict, safe=False)
-
