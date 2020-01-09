@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.forms import ModelForm
 
 # Create your models here.
 class Ticket(models.Model):
@@ -14,6 +15,7 @@ class Ticket(models.Model):
 	extras = models.TextField()
 	date_posted = models.DateTimeField(default=timezone.now)
 	author = models.ForeignKey(User, on_delete=models.CASCADE)
+	is_verified = models.BooleanField(default=False)
 
 	def __str__(self):
 		return self.arrival_airport
@@ -30,4 +32,15 @@ class Airport(models.Model):
 	def __str__(self):
 		return self.name
 
+
+
+class Upload(models.Model):
+	ticket_pdf = models.FileField(upload_to="documents/%Y/%m/%d/")
+	upload_date=models.DateTimeField(auto_now_add =True)
+
+# FileUpload form class.
+class UploadForm(ModelForm):
+	class Meta:
+		model = Upload
+		fields = ('ticket_pdf',)
 

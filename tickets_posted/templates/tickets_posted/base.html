@@ -69,7 +69,7 @@
 	    <div class="col-md-4">
 	      <div class="content-section content-box">
 	        <h3 id="search-icon">Ticket Info</h3>	      
-	        <form method="post" id="ticket-info-form">
+	        <form method="post" id="ticket-info-form" enctype="multipart/form-data">
 	        	{% csrf_token %}
 	            <input id="departure-airport" class="round-corner text-muted dep-date-time-text" type="text" name="departure" placeholder="FROM">
 	            <div id="departure-airport-search-result" class="col-md-4">{% include 'tickets_posted/departure-airport-partial.html' %}</div>
@@ -77,12 +77,13 @@
 	            <div id="arrival-airport-search-result" class="col-md-4">{% include 'tickets_posted/arrival-airport-partial.html' %}</div>
 	            <input id="flight-number" class="round-corner text-muted dep-date-time-text" type="text" placeholder="Flight Number">
 	            <label class="text-muted dep-date-time-text">Departure Date</label> <input id="departure-date" class="date text-muted dep-date-time-text" type="date"> </li>
-	            <label class="text-muted dep-date-time-text">Departure Time</label> <input class="text-muted dep-date-time-text time" type="time" id="departure-time" value="13:30"> <br>
+	            <label hidden class="text-muted dep-date-time-text">Departure Time</label> <input hidden class="text-muted dep-date-time-text time" type="time" id="departure-time" value="13:30"> <br>
 	       		<label class="text-muted giver-taker-text">I have </label> <select id="is-giver">
                 <option value="giver" selected class="text-muted giver-taker-text">  excess </option>
                 <option value="taker" class="text-muted giver-taker-text"> less </option>
-				</select> <label class="text-muted giver-taker-text"> luggage </label> 
+				</select> <label class="text-muted giver-taker-text"> baggage </label> 
 				<p hidden id="is-user-loggedin">{{ user.is_authenticated }}</p>
+				<div hidden class="browse-button text-muted"><input hidden type="file" name="ticket_pdf"></div></br>
 	       		<input class="form-submit-button" type="submit" value="Submit">
 	       	</form> 
 	      </div>

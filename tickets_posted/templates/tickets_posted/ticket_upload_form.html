@@ -1,0 +1,12 @@
+{% load crispy_forms_tags %}
+<div style="padding:40px;margin:40px;border:1px solid #ccc">
+		<form action="#" method="post" enctype="multipart/form-data">
+			{% csrf_token %} 
+				{{form|crispy}} 
+				<input type="submit" value="Upload" />
+		</form>
+		<!-- {% for file in files %}
+			{{forloop.counter}}.<a href="{{ file.ticket_pdf.url }}">{{ file.ticket_pdf.name }}</a>
+			({{file.upload_date}})<hr />
+		{% endfor %} -->
+</div>

@@ -14,12 +14,32 @@ from .models import Ticket
 from .models import Airport
 from django.template.loader import render_to_string
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Upload, UploadForm
 
 def home(request):
     if(request.user.is_authenticated):
         all_tickets_submitted = Ticket.objects.filter(author=request.user)
         return render(request, 'tickets_posted/base.html', {'posts':all_tickets_submitted, 'welcome_messsage':''})
     return render(request, 'tickets_posted/base.html', {'posts':'', 'welcome_messsage':'Welcome message!'})
+
+def verify_me(request, pk):
+    if request.method=="POST":
+        ticket_pdf = UploadForm(request.POST, request.FILES)
+        if ticket_pdf.is_valid():
+            ticket_pdf.save()
+            # make is_verified=True
+            t = Ticket.objects.get(id=pk)
+            t.is_verified = True
+            t.save()
+            # needs to save the ticket to reflect the change
+            return HttpResponseRedirect(reverse('ticket-home'))
+    else:
+        ticket_pdf=UploadForm()
+    files = Upload.objects.all().order_by('-upload_date')
+    return render(request, 'tickets_posted/ticket_upload_form.html', {'form':ticket_pdf, 'files':files})
+
+    
 
 def load_demanded_users(request):
     if request.method=='POST':
@@ -29,6 +49,7 @@ def load_demanded_users(request):
         date = request.POST.get('date')
         time = request.POST.get('time')
         is_giver = request.POST.get('is_giver')
+
         Ticket.objects.create(
             departure_airport=departure_airport,
             arrival_airport=arrival_airport,
@@ -43,7 +64,7 @@ def load_demanded_users(request):
         if(is_giver=='giver'):
             query_role = 'taker'
 
-        submitted_tickets = Ticket.objects.filter(arrival_airport=arrival_airport, flight_number=flight_number, date=date, time=time, is_giver=query_role)
+        submitted_tickets = Ticket.objects.filter(departure_airport=departure_airport, arrival_airport=arrival_airport, flight_number=flight_number, date=date, is_giver=query_role)
         
 
         html = render_to_string(
@@ -67,7 +88,7 @@ def load_matched_users(request):
         if(temp_ticket.is_giver=='giver'):
             query_role = 'taker'
 
-        submitted_tickets = Ticket.objects.filter(departure_airport=departure_airport ,arrival_airport=temp_ticket.arrival_airport, flight_number=temp_ticket.flight_number, date=temp_ticket.date, time=temp_ticket.time, is_giver=query_role)
+        submitted_tickets = Ticket.objects.filter(departure_airport=temp_ticket.departure_airport, arrival_airport=temp_ticket.arrival_airport, flight_number=temp_ticket.flight_number, date=temp_ticket.date, is_giver=query_role)
         
         print(submitted_tickets)
 
@@ -159,7 +180,7 @@ def load_airports_departure(request):
     if request.is_ajax():
 
         html = render_to_string(
-            template_name="tickets_posted/departure-airport-partial.html", context={"airports": airports[:5]}
+            template_name="tickets_posted/departure-airport-partial.html", context={"airports": airports if len(airports)<=5 else airports[:5]}
         )
         data_dict = {"html_from_view": html}
         return JsonResponse(data=data_dict, safe=False)
@@ -181,7 +202,7 @@ def load_airports_arrival(request):
     if request.is_ajax():
 
         html = render_to_string(
-            template_name="tickets_posted/arrival-airport-partial.html", context={"airports": airports[:5]} #send only 5 results
+            template_name="tickets_posted/arrival-airport-partial.html", context={"airports": airports if len(airports)<=5 else airports[:5]} #send only 5 results
         )
         data_dict = {"html_from_view": html}
         return JsonResponse(data=data_dict, safe=False)

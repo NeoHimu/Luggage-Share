@@ -16,6 +16,11 @@
 				    <label id="user-departure-date" class="text-muted"><b>Travel date: </b>{{ ticket.date }}</label>
 				    <label id="user-departure-time" class="text-muted"><b>Travel time: </b>{{ ticket.time }}</label>
 				    <p id="user-departure-email" class="article-content">Contact the luggage <b>{{ ticket.is_giver }}</b>: {{ticket.author.email}}</p>
+				    {% if ticket.is_verified %}
+				    		<label style="color:green">verified</label>
+				    {% else %}
+					    	<label style="color:red" title="{{ticket.author.username}} has not submitted pdf ticket as a proof of travel">not verified</label> 
+				    {% endif %}
 				  </div>
 				</article>
 			</li>
