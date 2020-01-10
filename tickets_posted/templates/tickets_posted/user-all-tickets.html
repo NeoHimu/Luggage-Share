@@ -1,8 +1,9 @@
 {% load crispy_forms_tags %}
 {% if posts %}
-	<div id="divCurrentUserAllTickets">
-	<ul style="list-style-type:none" id="currentUserTicketList">
+	<div id="divCurrentUserAllTickets" class="infinite-container">
+	<ul class="list-unstyled" id="currentUserTicketList">
 		{% for ticket in posts %}
+		<div class="infinite-item">
 			<li id="{{forloop.counter}}">
 				<article class="media content-section content-box">
 				  <img class="rounded-circle article-img" src="{{ ticket.author.profile.image.url }}">
@@ -29,7 +30,28 @@
 				  </div>
 				</article>
 			</li>
+		</div>
 		{% endfor %}
 	</ul>
 	</div>
+
+	  {% if posts.has_next %}
+	    <a class="infinite-more-link" href="?page={{ posts.next_page_number }}">More</a>
+	  {% endif %}
+
+	  <div class="loading" style="display: none;">
+	    Loading...
+	  </div>
+
+	  <script>
+	    var infinite = new Waypoint.Infinite({
+	      element: $('.infinite-container')[0],
+	      onBeforePageLoad: function () {
+	        $('.loading').show();
+	      },
+	      onAfterPageLoad: function ($items) {
+	        $('.loading').hide();
+	      }
+	    });
+	  </script>
 {% endif %}

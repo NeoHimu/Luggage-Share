@@ -1,0 +1,24 @@
+{
+  "name": "original_copy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "moment": "^2.24.0",
+    "waypoints": "^4.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NeoHimu/AirShare.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NeoHimu/AirShare/issues"
+  },
+  "homepage": "https://github.com/NeoHimu/AirShare#readme"
+}

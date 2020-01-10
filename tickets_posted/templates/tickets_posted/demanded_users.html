@@ -1,6 +1,8 @@
 {% if submitted_tickets %}
+<div class="infinite-container">
 	<ul style="list-style-type:none" id="departureAirportList">
 		{% for ticket in submitted_tickets %}
+		<div class="infinite-item">
 			<li id="{{forloop.counter}}">
 				<article class="media content-section content-box">
 				  <img class="rounded-circle article-img" src="{{ ticket.author.profile.image.url }}">
@@ -24,6 +26,29 @@
 				  </div>
 				</article>
 			</li>
+		</div>
 		{% endfor %}
 	</ul>
+</div>
+
+
+	  {% if submitted_tickets.has_next %}
+	    <a class="infinite-more-link" href="?page={{ submitted_tickets.next_page_number }}">More</a>
+	  {% endif %}
+
+	  <div class="loading" style="display: none;">
+	    Loading...
+	  </div>
+
+	  <script>
+	    var infinite = new Waypoint.Infinite({
+	      element: $('.infinite-container')[0],
+	      onBeforePageLoad: function () {
+	        $('.loading').show();
+	      },
+	      onAfterPageLoad: function ($items) {
+	        $('.loading').hide();
+	      }
+	    });
+	  </script>
 {% endif %}

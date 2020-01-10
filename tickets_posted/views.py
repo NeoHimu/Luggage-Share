@@ -10,6 +10,7 @@ from django.views.generic import (
 	UpdateView,
 	DeleteView
 )
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Ticket
 from .models import Airport
 from django.template.loader import render_to_string
@@ -20,7 +21,15 @@ from .models import Upload, UploadForm
 def home(request):
     if(request.user.is_authenticated):
         all_tickets_submitted = Ticket.objects.filter(author=request.user)
-        return render(request, 'tickets_posted/base.html', {'posts':all_tickets_submitted, 'welcome_messsage':''})
+        page = request.GET.get('page', 1)
+        paginator = Paginator(all_tickets_submitted, 5)
+        try:
+            all_tickets_list = paginator.page(page)
+        except PageNotAnInteger:
+            all_tickets_list = paginator.page(1)
+        except EmptyPage:
+            all_tickets_list = paginator.page(paginator.num_pages)
+        return render(request, 'tickets_posted/base.html', {'posts':all_tickets_list, 'welcome_messsage':''})
     return render(request, 'tickets_posted/base.html', {'posts':'', 'welcome_messsage':'Welcome message!'})
 
 def verify_me(request, pk):

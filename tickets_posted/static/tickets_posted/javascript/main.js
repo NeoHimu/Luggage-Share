@@ -15,10 +15,13 @@ let scheduled_function = false
 const divCurrentUserAllTickets = $('#divCurrentUserAllTickets');
 
 
+
 $(document).ready(function(){
    
 				// Retrieve the object from storage
 			var retrievedObject = JSON.parse(localStorage.getItem('ticket-data'));
+			if(retrievedObject==null)
+				return;
 
 			// console.log('retrievedObject: ', retrievedObject);
 			// console.log(retrievedObject.departure_airport);
