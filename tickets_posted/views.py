@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, reverse, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.views.generic import (
@@ -10,6 +11,8 @@ from django.views.generic import (
 	UpdateView,
 	DeleteView
 )
+import boto3
+import botocore
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Ticket
 from .models import Airport
@@ -17,10 +20,11 @@ from django.template.loader import render_to_string
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Upload, UploadForm
+import os, subprocess
 
 def home(request):
     if(request.user.is_authenticated):
-        all_tickets_submitted = Ticket.objects.filter(author=request.user)
+        all_tickets_submitted = Ticket.objects.filter(author=request.user).order_by('-date')
         page = request.GET.get('page', 1)
         paginator = Paginator(all_tickets_submitted, 5)
         try:
@@ -34,13 +38,17 @@ def home(request):
 
 def verify_me(request, pk):
     if request.method=="POST":
-        ticket_pdf = UploadForm(request.POST, request.FILES)
+        ticket_pdf = UploadForm(request.POST, request.FILES) 
         if ticket_pdf.is_valid():
-            ticket_pdf.save()
-            # make is_verified=True
+            #get the instance of currently saved ticket
+            instance = ticket_pdf.customSave(request.user)
             t = Ticket.objects.get(id=pk)
-            t.is_verified = True
-            t.save()
+            if(isValidPdfTicket(instance.ticket_pdf.url, t.departure_airport, t.arrival_airport)==True):
+                # make is_verified=True
+                t.is_verified = True
+                t.save()
+            else:
+                messages.info(request, "Details in pdf do not match with the submitted ticket details :(")
             # needs to save the ticket to reflect the change
             return HttpResponseRedirect(reverse('ticket-home'))
     else:
@@ -49,6 +57,63 @@ def verify_me(request, pk):
     return render(request, 'tickets_posted/ticket_upload_form.html', {'form':ticket_pdf, 'files':files})
 
     
+def isValidPdfTicket(pdf_url, airport1, airport2):
+    # print(pdf_url, airport1, airport2)
+    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+    #url = "https://neohimu.s3.amazonaws.com/documents/2020/01/11/ticket_i1vZVS7.pdf?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIASF3WSTCZGT3EXWQD%2F20200111%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20200111T152521Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8a82cab7598bb6d12008942fb8f01240c9ee999d2e52ae24e9d9d1ecefb3201d"
+
+    KEY = '/'.join(pdf_url.split("?")[0].split('//')[1].split('/')[1:])
+    #print(key)
+
+    BUCKET_NAME = 'neohimu' #replace with your bucket name
+
+    s3 = boto3.resource('s3')
+
+    try:
+        s3.Bucket(BUCKET_NAME).download_file(KEY, 'tickets_posted/my_local_ticket.pdf')
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise 
+
+    args = ["/usr/bin/pdftotext",
+            '-enc',
+            'UTF-8',
+            "{}/my_local_ticket.pdf".format(SCRIPT_DIR),
+            '-']
+    res = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output = res.stdout.decode('utf-8')
+
+    #print(output.split(" "))
+    oo = [ ele.split("\n") for ele in output.split(" ")]
+    temp = []
+
+    for ele in oo:
+        temp = temp+ele
+
+    temp = [ele.lower() for ele in temp]
+
+    #print(temp)
+
+    #airport1 = "Hyderabad International Airport"
+    #airport2 = "Hong Kong Airport"
+
+    airport1 = airport1.split(" ")
+    airport2 = airport2.split(" ")
+    #print(airport1)
+    #print(airport2)
+    #remove empty string elements from the list
+    airport1 = [a for a in airport1 if a is not '']
+    airport2 = [a for a in airport2 if a is not '']
+    #print(airport1[0])
+    #print(airport2[0])
+
+    if (airport1[0].lower() in temp) and (airport2[0].lower() in temp):
+        return True
+    else:
+        return False
+
 
 def load_demanded_users(request):
     if request.method=='POST':
@@ -73,7 +138,7 @@ def load_demanded_users(request):
         if(is_giver=='giver'):
             query_role = 'taker'
 
-        submitted_tickets = Ticket.objects.filter(departure_airport=departure_airport, arrival_airport=arrival_airport, flight_number=flight_number, date=date, is_giver=query_role)
+        submitted_tickets = Ticket.objects.filter(departure_airport=departure_airport, arrival_airport=arrival_airport, flight_number=flight_number, date=date, is_giver=query_role).order_by('-date')
         
 
         html = render_to_string(
@@ -97,7 +162,7 @@ def load_matched_users(request):
         if(temp_ticket.is_giver=='giver'):
             query_role = 'taker'
 
-        submitted_tickets = Ticket.objects.filter(departure_airport=temp_ticket.departure_airport, arrival_airport=temp_ticket.arrival_airport, flight_number=temp_ticket.flight_number, date=temp_ticket.date, is_giver=query_role)
+        submitted_tickets = Ticket.objects.filter(departure_airport=temp_ticket.departure_airport, arrival_airport=temp_ticket.arrival_airport, flight_number=temp_ticket.flight_number, date=temp_ticket.date, is_giver=query_role).order_by('-date')
         
         print(submitted_tickets)
 

@@ -26,7 +26,11 @@
 				    		<label style="color:red">I'm not verified</label>
 				    		<u><a href={% url 'verify_me' ticket.id %}> Verify me!</a></u>
 				    	{% endif %}
-					    
+				    	{% if ticket.is_giver == 'giver' %}
+					    Click anywere to view all co-travellers who has less baggage
+					    {% else %}
+					    Click anywhere to view all co-travellers who has excess baggage
+					    {% endif %}
 				  </div>
 				</article>
 			</li>

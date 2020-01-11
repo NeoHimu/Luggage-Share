@@ -103,25 +103,25 @@ $('#arrival-airport').keyup(delay(function (e) {
 // })
 
 
-// $("#currentUserTicketList li").click(function() {
-//    			// console.log(this.id);
-//    			// console.log($(this).find('#current-ticket-id').text());
-//    			$.ajax({
-// 			url: '/find-all-matched-users/', //ajax call will be made to this url
-// 			type: 'get',
-// 			data:{
-// 				ticket_id:$(this).find('#current-user-ticket-id').text(),
-// 			},
-// 			dataType: "json",
-// 			success: function(response){
-// 				// alert("Successful!");
-// 				// console.log(response['html_from_view']);
-// 				demanded_users.html(response['html_from_view']);
-// 				divCurrentUserAllTickets.html("");
+$("#currentUserTicketList li").click(function() {
+   			// console.log(this.id);
+   			// console.log($(this).find('#current-ticket-id').text());
+   			$.ajax({
+			url: '/find-all-matched-users/', //ajax call will be made to this url
+			type: 'get',
+			data:{
+				ticket_id:$(this).find('#current-user-ticket-id').text(),
+			},
+			dataType: "json",
+			success: function(response){
+				// alert("Successful!");
+				// console.log(response['html_from_view']);
+				demanded_users.html(response['html_from_view']);
+				divCurrentUserAllTickets.html("");
 
-// 			}
-// 		});
-// });
+			}
+		});
+});
 
 
 // Add event for selecting the ticket pdf

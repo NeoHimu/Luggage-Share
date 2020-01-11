@@ -5,8 +5,8 @@
 				{{form|crispy}} 
 				<input type="submit" value="Upload" />
 		</form>
-		<!-- {% for file in files %}
+		{% for file in files %}
 			{{forloop.counter}}.<a href="{{ file.ticket_pdf.url }}">{{ file.ticket_pdf.name }}</a>
 			({{file.upload_date}})<hr />
-		{% endfor %} -->
+		{% endfor %}
 </div>

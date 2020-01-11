@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.forms import ModelForm
+from django.core.validators import FileExtensionValidator	
+import os, subprocess
 
 # Create your models here.
 class Ticket(models.Model):
@@ -35,12 +37,26 @@ class Airport(models.Model):
 
 
 class Upload(models.Model):
-	ticket_pdf = models.FileField(upload_to="documents/%Y/%m/%d/")
-	upload_date=models.DateTimeField(auto_now_add =True)
+	ticket_pdf = models.FileField(upload_to="documents/%Y/%m/%d/", validators=[FileExtensionValidator(['pdf'])])
+	upload_date = models.DateTimeField(auto_now_add =True)
+	owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
 # FileUpload form class.
 class UploadForm(ModelForm):
 	class Meta:
 		model = Upload
 		fields = ('ticket_pdf',)
+
+	def customSave(self, user):
+		lv = self.save(commit=False)
+		lv.owner = user
+		# print('hello')
+		# print(lv.ticket_pdf)
+		# args = ["/usr/bin/pdftotext", '-enc', 'UTF-8', lv.ticket_pdf, '-']
+		# res = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		# output = res.stdout.decode('utf-8')
+		# print(output)
+		# print("helloooooo")
+		lv.save()
+		return lv
 
