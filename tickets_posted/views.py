@@ -38,6 +38,14 @@ def home(request):
 
 def verify_me(request, pk):
     if request.method=="POST":
+        #The max size in bytes
+        MAX_SIZE = 10*1024*1024 #10 MB file size
+        for filename, file in request.FILES.items():
+            if request.FILES['ticket_pdf'].size > MAX_SIZE:
+                request.FILES.pop(filename, None)
+                messages.info(request, "file size exceeds the maximum size limit of 10MB")
+                return HttpResponseRedirect(reverse('ticket-home'))
+
         ticket_pdf = UploadForm(request.POST, request.FILES) 
         if ticket_pdf.is_valid():
             #get the instance of currently saved ticket

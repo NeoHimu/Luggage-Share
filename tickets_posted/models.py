@@ -50,6 +50,8 @@ class UploadForm(ModelForm):
 	def customSave(self, user):
 		lv = self.save(commit=False)
 		lv.owner = user
+
+        # return your errors here
 		# print('hello')
 		# print(lv.ticket_pdf)
 		# args = ["/usr/bin/pdftotext", '-enc', 'UTF-8', lv.ticket_pdf, '-']
