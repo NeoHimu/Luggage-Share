@@ -148,9 +148,8 @@ def load_demanded_users(request):
 
         submitted_tickets = Ticket.objects.filter(departure_airport=departure_airport, arrival_airport=arrival_airport, flight_number=flight_number, date=date, is_giver=query_role).order_by('-date')
         
-
         html = render_to_string(
-            template_name="tickets_posted/demanded_users.html", context={"submitted_tickets": submitted_tickets}
+            template_name="tickets_posted/demanded_users.html", context={"submitted_tickets": submitted_tickets, "loggedInUser": request.user}
             )
         data_dict = {"html_from_view": html}
         return JsonResponse(data=data_dict, safe=False)
@@ -175,7 +174,7 @@ def load_matched_users(request):
         print(submitted_tickets)
 
         html = render_to_string(
-            template_name="tickets_posted/demanded_users.html", context={"submitted_tickets": submitted_tickets}
+            template_name="tickets_posted/demanded_users.html", context={"submitted_tickets": submitted_tickets, "loggedInUser": request.user}
             )
         data_dict = {"html_from_view": html}
         return JsonResponse(data=data_dict, safe=False)

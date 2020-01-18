@@ -15,6 +15,8 @@
 				    <label id="user-arrival-airport" class="text-muted"><b>To: </b>{{ ticket.arrival_airport }} </label>
 				    <label id="user-flight-number" class="text-muted"><b>Flight no. </b>{{ ticket.flight_number }}</label>
 				    <p hidden id="current-user-ticket-id" class="article-content">{{ ticket.id }}</p>
+				    <p hidden id="chat-username" class="article-content">{{ ticket.author.id }}</p>	
+				    <p hidden id="loggedInUsername">{{loggedInUser.id}}</p>			    
 				    <label id="user-departure-date" class="text-muted"><b>Travel date: </b>{{ ticket.date }}</label>
 				    <label id="user-departure-time" class="text-muted"><b>Travel time: </b>{{ ticket.time }}</label>
 				    <p id="user-departure-email" class="article-content">Contact the luggage <b>{{ ticket.is_giver }}</b>: {{ticket.author.email}}</p>
@@ -23,12 +25,24 @@
 				    {% else %}
 					    	<label style="color:red" title="{{ticket.author.username}} has not submitted pdf ticket as a proof of travel">not verified</label> 
 				    {% endif %}
+				    <button id="chat-button-{{forloop.counter}}" class="form-submit-button" onclick="openForm({{ ticket.author.id }}, {{loggedInUser.id}})">Chat Now</button>
 				  </div>
 				</article>
 			</li>
 		</div>
 		{% endfor %}
-	</ul>
+		</ul>
+		 <div class="chat-popup" id="myForm">
+		 	<div id="chat">
+			  <div class="form-container">
+			    <label for="msg"><b>Message</b></label>
+			    <textarea placeholder="Type message.." name="msg" required></textarea>
+
+			    <button type="submit" class="btn">Send</button>
+			    <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+			  </div>
+			</div>
+		</div> 
 </div>
 
 
@@ -50,5 +64,21 @@
 	        $('.loading').hide();
 	      }
 	    });
+
+	    // chat box open and close
+	    function openForm(first, second) {
+		  if(first < second)
+		  	roomName = first*1000000000+second;
+		  else
+		  	roomName = second*1000000000+first;
+		  window.location.pathname = '/chat/' + roomName + '/';
+		}
+
+		function closeForm() {
+		  document.getElementById("myForm").style.display = "none";
+		} 
+		window.onload = function(){
+			closeForm();
+		} 
 	  </script>
 {% endif %}

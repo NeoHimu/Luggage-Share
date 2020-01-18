@@ -30,8 +30,10 @@ ALLOWED_HOSTS = []#['ployed.herokuapp.com']
 
 INSTALLED_APPS = [
     # created apps
+    'channels', # keep this on the top.. this will avoid many issues related to 3rd party app that needs runserver
     'tickets_posted.apps.TicketsPostedConfig',
     'users.apps.UsersConfig',
+    'chat',
     'crispy_forms',
     'storages',
     # django installed apps
@@ -56,6 +58,16 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'main_project.urls'
 ASGI_APPLICATION = "main_project.routing.application"
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -77,11 +89,13 @@ WSGI_APPLICATION = 'main_project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'TEST': {
+            'NAME': os.path.join(BASE_DIR, 'db_test.sqlite3')
+        }
     }
 }
 

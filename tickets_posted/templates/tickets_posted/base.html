@@ -72,7 +72,7 @@
 	    <div class="col-md-4">
 	      <div class="content-section content-box">
 	        <h3 id="search-icon">Ticket Info</h3>	      
-	        <form method="post" id="ticket-info-form" enctype="multipart/form-data">
+	        <form method="post" id="ticket-info-form" enctype="multipart/form-data" autocomplete="off">
 	        	{% csrf_token %}
 	            <input id="departure-airport" class="round-corner text-muted dep-date-time-text" type="text" name="departure" placeholder="FROM">
 	            <div id="departure-airport-search-result" class="col-md-4">{% include 'tickets_posted/departure-airport-partial.html' %}</div>

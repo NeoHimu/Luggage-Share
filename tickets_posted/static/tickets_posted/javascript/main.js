@@ -9,7 +9,7 @@ const demanded_users = $('#demanded-users')
 const endpoint_departure = '/airports_departure/' 
 const endpoint_arrival = '/airports_arrival/' 
 
-const delay_by_in_ms = 700
+const delay_by_in_ms = 100
 let scheduled_function = false
 
 const divCurrentUserAllTickets = $('#divCurrentUserAllTickets');
@@ -17,8 +17,7 @@ const divCurrentUserAllTickets = $('#divCurrentUserAllTickets');
 
 
 $(document).ready(function(){
-   
-				// Retrieve the object from storage
+			// Retrieve the object from storage
 			var retrievedObject = JSON.parse(localStorage.getItem('ticket-data'));
 			if(retrievedObject==null)
 				return;
@@ -96,7 +95,7 @@ $('#arrival-airport').keyup(delay(function (e) {
 	// setTimeout returns the ID of the function to be executed
 	scheduled_function = setTimeout(ajax_call_arrival, delay_by_in_ms, endpoint_arrival, request_parameters)
 
-	}, 300)); //adds delay of 300 ms
+	}, 30)); //adds delay of 300 ms
 
 // user_input_arrival.on('keyup', function () {
 
