@@ -8,10 +8,11 @@ class Message(models.Model):
 	author = models.ForeignKey(User, related_name='author_messages', on_delete=models.CASCADE)
 	content = models.TextField()
 	timestamp = models.DateTimeField(auto_now_add=True)
+	room_name = models.TextField()
 
 	def __str__(self):
 		return self.author.username
 
-	def last_10_messages():
+	def last_10_messages(room_name):
 		# need to be completed to load all the messages lazily
-		return Message.objects.order_by('timestamp').all()
+		return Message.objects.order_by('timestamp').filter(room_name=room_name)
