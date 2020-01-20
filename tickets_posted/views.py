@@ -21,6 +21,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Upload, UploadForm
 import os, subprocess
+from django.utils.safestring import mark_safe
+import json
 
 def home(request):
     if(request.user.is_authenticated):
@@ -287,3 +289,14 @@ def load_airports_arrival(request):
         )
         data_dict = {"html_from_view": html}
         return JsonResponse(data=data_dict, safe=False)
+
+
+def index(request):
+    return render(request, 'chat/index.html', {})
+
+@login_required
+def room(request, room_name):
+    return render(request, 'chat/room.html', {
+        'room_name_json': mark_safe(json.dumps(room_name)),
+        'username': mark_safe(json.dumps(request.user.username)),
+    }) 

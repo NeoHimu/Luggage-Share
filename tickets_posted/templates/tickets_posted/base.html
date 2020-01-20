@@ -13,10 +13,13 @@
 
 	<link rel="stylesheet" type="text/css" href="{% static 'tickets_posted/main.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'tickets_posted/temp.css' %}">
+	<!-- <link rel="stylesheet" type="text/css" href="{% static 'chat/css/style.css' %}"> -->
+	<script src="{% static 'chat/js/main.js' %}"></script>
 	<script src="{% static 'tickets_posted/javascript/jquery-3.4.1.min.js' %}"></script>
 	<script src="{% static 'tickets_posted/javascript/jquery.waypoints.min.js' %}"></script>
 	<script src="{% static 'tickets_posted/javascript/infinite.min.js' %}"></script>
-
+	<script src="{% static 'chat/js/main.js' %}"></script>
+    <script src="{% static 'chat/js/reconnecting-websocket.js' %}"></script>
 
 	{% if title %}
 		<title>{{title}}</title>

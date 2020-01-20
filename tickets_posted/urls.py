@@ -11,6 +11,7 @@ from . import views
 
 urlpatterns = [
 	path('', views.home, name='ticket-home'),	
+	path('chat/<str:room_name>/', views.room, name='room'),
 	# homepage/ is a login redirect url => original work done in yourhomepage/ url
 	# path('homepage/', views.userhomepage, name='user-homepage'),
 	# path('yourhomepage/', views.user_submitted_tickets, name='user_submitted_tickets'),

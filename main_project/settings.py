@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     'channels', # keep this on the top.. this will avoid many issues related to 3rd party app that needs runserver
     'tickets_posted.apps.TicketsPostedConfig',
     'users.apps.UsersConfig',
-    'chat',
+    # 'chat',
     'crispy_forms',
     'storages',
     # django installed apps

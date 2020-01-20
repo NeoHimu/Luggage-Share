@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.forms import ModelForm
 from django.core.validators import FileExtensionValidator	
 import os, subprocess
+from django.db.models.signals import post_save
 
 # Create your models here.
 class Ticket(models.Model):
@@ -50,15 +51,24 @@ class UploadForm(ModelForm):
 	def customSave(self, user):
 		lv = self.save(commit=False)
 		lv.owner = user
-
-        # return your errors here
-		# print('hello')
-		# print(lv.ticket_pdf)
-		# args = ["/usr/bin/pdftotext", '-enc', 'UTF-8', lv.ticket_pdf, '-']
-		# res = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		# output = res.stdout.decode('utf-8')
-		# print(output)
-		# print("helloooooo")
 		lv.save()
 		return lv
 
+class Message(models.Model):
+	author = models.ForeignKey(User, related_name='author_messages', on_delete=models.CASCADE)
+	# receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
+	content = models.TextField()
+	timestamp = models.DateTimeField(auto_now_add=True)
+	room_name = models.TextField()
+
+	def __str__(self):
+		return self.author.username
+
+	def last_10_messages(room_name):
+		# need to be completed to load all the messages lazily
+		return Message.objects.order_by('timestamp').filter(room_name=room_name)
+
+def some_method(sender, instance, **kwargs):
+	print("sender instance: "+instance.author.username)
+
+post_save.connect(some_method, sender=Message)
