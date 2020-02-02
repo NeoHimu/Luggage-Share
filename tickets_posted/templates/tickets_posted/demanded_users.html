@@ -38,13 +38,13 @@
 			    <button type="button" onclick="closeForm()" style="margin-left: 180px; width: 30px; font-size:12px; background: #96b5e0; color: red;">X</button>
 			 
 			    <div class="content">
-					<div class="messages" style="width: 210px; height: 300px; overflow:hidden; overflow-y:scroll;">
-						<div id="chat-log" style="font-size: 16px; list-style-type:none;">
+					<div id='div-messages' class="messages" style="width: 210px; height: 300px; overflow:hidden; overflow-y:scroll;">
+						<div id="chat-log" style="font-size: 16px; list-style-type:none;" >
 						</div>
 					</div>
 					<div class="message-input">
 						<div class="wrap">
-						<input id="chat-message-input" type="text" placeholder="Write your message..." style="width: 160px; position: absolute; border: 1px solid black; word-wrap: break-word; font-size:16px"/>
+						<input id="chat-message-input" type="text" autocomplete="off" placeholder="Write your message..." style="width: 160px; position: absolute; border: 1px solid black; word-wrap: break-word; font-size:16px"/>
 						<button class="submit" id="chat-message-submit" style="margin-left: 160px; width: 50px; font-size:16px; border: 1px solid black; background: #0066A2; color: white;" onclick="sendMessage('{{loggedInUser.username}}');">Send</button>
 						</div>
 					</div>
@@ -72,10 +72,8 @@
 	      }
 	    });
 
-
 	    const allRooms = firebase.database().ref().child('allRooms');
 	    const allChatsPerUser = firebase.database().ref().child('allChatsPerUser'); // all chats for each user id
- 
         // var username=$('#loggedInUsername').text();
         // on page load, chat form should not appear. It should appear only on "Chat Now" clicked
         document.getElementById("myForm").style.display = "none";
@@ -84,8 +82,9 @@
         let g_other_user = "";
         let number_of_messages_to_load = 0;
 
+
 	    function openForm(first, second, this_user, other_user) {
-	    	number_of_messages_to_load = 10;
+	    	number_of_messages_to_load = 30;
 	    	g_this_user = this_user;
 	    	g_other_user = other_user;
 	      console.log(other_user);
@@ -115,7 +114,11 @@
 			      else
 			      	str_temp += '<div align="left"><span style="border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
 			    });
+
 			    chat.innerHTML = str_temp;
+			    //scroll to bottom of the chat
+			    var e = document.getElementById('div-messages');
+				e.scrollTop = e.scrollHeight;
 			    // console.log(str_temp);
 		  });
 		 
