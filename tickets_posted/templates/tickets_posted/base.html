@@ -14,12 +14,9 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'tickets_posted/main.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'tickets_posted/temp.css' %}">
 	<!-- <link rel="stylesheet" type="text/css" href="{% static 'chat/css/style.css' %}"> -->
-	<script src="{% static 'chat/js/main.js' %}"></script>
 	<script src="{% static 'tickets_posted/javascript/jquery-3.4.1.min.js' %}"></script>
 	<script src="{% static 'tickets_posted/javascript/jquery.waypoints.min.js' %}"></script>
 	<script src="{% static 'tickets_posted/javascript/infinite.min.js' %}"></script>
-	<script src="{% static 'chat/js/main.js' %}"></script>
-    <script src="{% static 'chat/js/reconnecting-websocket.js' %}"></script>
 
 	{% if title %}
 		<title>{{title}}</title>
@@ -44,7 +41,7 @@
 	        <!-- Navbar Right Side -->
 	        <div class="navbar-nav">
 	        	{% if user.is_authenticated %}
-	        	  <!-- <a class="nav-item nav-link" href="">Add Flight Details</a> -->
+	        	  <label class="nav-item nav-link" id="all-chats" onclick="loadAllChats('{{user.username}}');">Chats</label>
      			  <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
      			  <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
 		        {% else %}
@@ -97,6 +94,41 @@
 
 	  </div>
 	</main>
+
+	  <!-- The core Firebase JS SDK is always required and must be listed first -->
+	<script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-database.js"></script>
+
+	<!-- TODO: Add SDKs for Firebase products that you want to use
+	     https://firebase.google.com/docs/web/setup#available-libraries -->
+	<script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-analytics.js"></script>
+
+	<script>
+	  // Your web app's Firebase configuration
+	  var firebaseConfig = {
+	    apiKey: "AIzaSyAehYRRDVR9ILGJfvYWnG_R97VqFGY2Nxc",
+	    authDomain: "cunett-2e6df.firebaseapp.com",
+	    databaseURL: "https://cunett-2e6df.firebaseio.com",
+	    projectId: "cunett-2e6df",
+	    storageBucket: "cunett-2e6df.appspot.com",
+	    messagingSenderId: "830091429101",
+	    appId: "1:830091429101:web:8fdd78e4de72cfd64078e4",
+	    measurementId: "G-PHBK46TB0S"
+	  };
+	  // Initialize Firebase
+	  firebase.initializeApp(firebaseConfig);
+	  firebase.analytics();
+
+
+	  function loadAllChats(this_user){
+	  	console.log("hello");
+	  }
+
+	</script>
+
+
+
+
 	<!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

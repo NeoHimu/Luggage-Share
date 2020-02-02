@@ -30,7 +30,7 @@ ALLOWED_HOSTS = []#['ployed.herokuapp.com']
 
 INSTALLED_APPS = [
     # created apps
-    'channels', # keep this on the top.. this will avoid many issues related to 3rd party app that needs runserver
+    #'channels', # keep this on the top.. this will avoid many issues related to 3rd party app that needs runserver
     'tickets_posted.apps.TicketsPostedConfig',
     'users.apps.UsersConfig',
     # 'chat',
@@ -56,16 +56,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'main_project.urls'
-ASGI_APPLICATION = "main_project.routing.application"
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
-    },
-}
 
 
 TEMPLATES = [

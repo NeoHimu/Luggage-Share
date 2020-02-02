@@ -25,7 +25,7 @@
 				    {% else %}
 					    	<label style="color:red" title="{{ticket.author.username}} has not submitted pdf ticket as a proof of travel">not verified</label> 
 				    {% endif %}
-				    <button id="chat-button-{{forloop.counter}}" class="form-submit-button" onclick="openForm({{ ticket.author.id }}, {{loggedInUser.id}})">Chat Now</button>
+				    <button id="chat-button-{{forloop.counter}}" class="form-submit-button" onclick="openForm({{loggedInUser.id}}, {{ ticket.author.id }}, '{{loggedInUser.username}}', '{{ticket.author.username}}')">Chat Now</button>
 				  </div>
 				</article>
 			</li>
@@ -34,29 +34,24 @@
 		</ul>
 		 <div class="chat-popup" id="myForm">
 			  <div class="form-container">
-			    <label for="msg"><b>Message</b></label>
+			    <b><label id="other-user" for="other-user" style="background: #0066A2; width: 180px; padding-left: 5px; position: absolute; word-wrap: break-word; color: white; font-size:16px">Messages</label></b>
+			    <button type="button" onclick="closeForm()" style="margin-left: 180px; width: 30px; font-size:12px; background: #96b5e0; color: red;">X</button>
+			 
 			    <div class="content">
-					<!-- <div class="contact-profile">
-						<img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" height="42" width="42"/>
-						<p>{{ loggedInUser.username }}</p>
-					</div> -->
-					<div class="messages">
-						<ul id="chat-log">
-							
-						</ul>
+					<div class="messages" style="width: 210px; height: 300px; overflow:hidden; overflow-y:scroll;">
+						<div id="chat-log" style="font-size: 16px; list-style-type:none;">
+						</div>
 					</div>
 					<div class="message-input">
 						<div class="wrap">
-						<input id="chat-message-input" type="text" placeholder="Write your message..."/>
-						<button class="submit" id="chat-message-submit">Send</button>
+						<input id="chat-message-input" type="text" placeholder="Write your message..." style="width: 160px; position: absolute; border: 1px solid black; word-wrap: break-word; font-size:16px"/>
+						<button class="submit" id="chat-message-submit" style="margin-left: 160px; width: 50px; font-size:16px; border: 1px solid black; background: #0066A2; color: white;" onclick="sendMessage('{{loggedInUser.username}}');">Send</button>
 						</div>
 					</div>
 				</div>
-			    <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
 			  </div>
 		</div> 
 </div>
-
 
 	  {% if submitted_tickets.has_next %}
 	    <a class="infinite-more-link" href="?page={{ submitted_tickets.next_page_number }}">More</a>
@@ -77,87 +72,54 @@
 	      }
 	    });
 
+
+	    const allRooms = firebase.database().ref().child('allRooms');
+	    const allChatsPerUser = firebase.database().ref().child('allChatsPerUser'); // all chats for each user id
  
-        var roomName="temp";
-        var username=$('#loggedInUsername').text();
-        var chatSocket = new ReconnectingWebSocket(
-	        'ws://' + window.location.host +
-	        '/ws/chat/' + roomName + '/');
-	    // chat box open and close
-	    function openForm(first, second) {
+        // var username=$('#loggedInUsername').text();
+        // on page load, chat form should not appear. It should appear only on "Chat Now" clicked
+        document.getElementById("myForm").style.display = "none";
+        let roomName = "000";
+        let g_this_user = "";
+        let g_other_user = "";
+        let number_of_messages_to_load = 0;
+
+	    function openForm(first, second, this_user, other_user) {
+	    	number_of_messages_to_load = 10;
+	    	g_this_user = this_user;
+	    	g_other_user = other_user;
+	      console.log(other_user);
 		  if(first < second)
-		  	roomName = first*1000000000+second;
+		  	roomName = first*1000000000000+second;
 		  else
-		  	roomName = second*1000000000+first;
-		  // window.location.pathname = '/chat/' + roomName + '/';
+		  	roomName = second*1000000000000+first;
 		  console.log(roomName);
-		  chatSocket = new ReconnectingWebSocket(
-	        'ws://' + window.location.host +
-	        '/ws/chat/' + roomName + '/');
+		  document.getElementById("other-user").innerHTML = other_user;
+		  document.getElementById("myForm").style.display = "block";
+
+		    // load all previous messages
+		    let chat = document.getElementById('chat-log');
+		    let str = Object.assign("", chat.innerHTML);
+		    chat.innerHTML = "";
+		    // check if roomName exists na
+        	allRooms.child(roomName).orderByKey().limitToLast(number_of_messages_to_load).on('value', snapshot => {
+			    // console.log(snapshot.val());
+			    let str_temp="";
+			    console.log(number_of_messages_to_load);
+			    snapshot.forEach((messageSnapshot) => {
+			      // console.log(messageSnapshot.key);
+			      // console.log(messageSnapshot.val().message);
+			      // console.log("loop length");
+			      if(messageSnapshot.val().sender === this_user)
+			      	str_temp += '<div align="right"><span style="background: #96b5e0; border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
+			      else
+			      	str_temp += '<div align="left"><span style="border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
+			    });
+			    chat.innerHTML = str_temp;
+			    // console.log(str_temp);
+		  });
+		 
 		}
-
-    chatSocket.onopen = function(e) {
-      fetchMessages();
-    }
-
-    chatSocket.onmessage = function(e) {
-        console.log("here~~")
-        var data = JSON.parse(e.data);
-        if (data['command'] === 'fetch_messages') {
-          for (let i=0; i<data['messages'].length; i++) {
-            createMessage(data['messages'][i]);
-          }
-        } else if (data['command'] === 'new_message'){
-          createMessage(data['message']);
-        }
-    };
-
-    chatSocket.onclose = function(e) {
-        console.error('Chat socket closed unexpectedly');
-    };
-
-    document.querySelector('#chat-message-input').focus();
-
-    document.querySelector('#chat-message-input').onkeyup = function(e) {
-        if (e.keyCode === 13) {  // enter, return
-            document.querySelector('#chat-message-submit').click();
-        }
-    };
-
-    document.querySelector('#chat-message-submit').onclick = function(e) {
-        console.log("pressed");
-        var messageInputDom = document.getElementById('chat-message-input');
-        var message = messageInputDom.value;
-        chatSocket.send(JSON.stringify({
-            'command': 'new_message',
-            'message': message,
-            'from': username
-        }));
-
-        messageInputDom.value = '';
-    };
-
-    function fetchMessages() {
-      chatSocket.send(JSON.stringify({'command': 'fetch_messages' }));
-    }
-
-    function createMessage(data) {
-      var author = data['author'];
-      var msgListTag = document.createElement('li');
-      // var imgTag = document.createElement('img');
-      var pTag = document.createElement('p');
-      pTag.textContent = data.content;
-      // imgTag.src = 'http://emilcarlsson.se/assets/mikeross.png';
-
-      if (author === username) {
-        msgListTag.className = 'sent';
-      } else {
-        msgListTag.className = 'replies';
-      }
-      // msgListTag.appendChild(imgTag);
-      msgListTag.appendChild(pTag);
-      document.querySelector('#chat-log').appendChild(msgListTag);
-    }
 
 		function closeForm() {
 		  document.getElementById("myForm").style.display = "none";
@@ -166,8 +128,33 @@
 			closeForm();
 		} 
 
+		document.getElementById('chat-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.getElementById('chat-message-submit').click();
+                // console.log("pressed...");
+            }
+        };
 
+        function sendMessage(this_user){
+        	console.log("Send message called");
+        	number_of_messages_to_load = 1;
+        	let time = new Date().getTime(); // in milliseconds
+        	let msg = document.getElementById("chat-message-input").value;
+        	document.getElementById("chat-message-input").value="";
 
+        	allRooms.child(roomName).push({
+        		sender: this_user,
+        		message: msg,
+        		time: time
+        	});
+        	console.log(g_other_user);
+        	allChatsPerUser.child(this_user).child(g_other_user).set({
+	        last_message: msg,
+	        room_id: roomName,
+	        last_message_timestamp: "12:34",
+	        last_seen: "4 minutes ago",
+	      });
+        }
 
 
 	  </script>
