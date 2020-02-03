@@ -1,6 +1,6 @@
 {% if submitted_tickets %}
-<div class="infinite-container">
-	<ul style="list-style-type:none" id="departureAirportList">
+<div id="divAllDemandedUserTickets" class="infinite-container">
+	<ul style="list-style-type:none" id="demandedUserTicketList">
 		{% for ticket in submitted_tickets %}
 		<div class="infinite-item">
 			<li id="{{forloop.counter}}">
@@ -14,9 +14,8 @@
 				    <label id="user-departure-airport" class="text-muted"><b>From: </b>{{ ticket.departure_airport }} </label>
 				    <label id="user-arrival-airport" class="text-muted"><b>To: </b>{{ ticket.arrival_airport }} </label>
 				    <label id="user-flight-number" class="text-muted"><b>Flight no. </b>{{ ticket.flight_number }}</label>
-				    <p hidden id="current-user-ticket-id" class="article-content">{{ ticket.id }}</p>
-				    <p hidden id="chat-username" class="article-content">{{ ticket.author.id }}</p>	
-				    <p hidden id="loggedInUsername">{{loggedInUser.username}}</p>			    
+				    <p hidden id="hidden-other-username" class="article-content">{{ ticket.author.username }}</p>	
+				    <p hidden id="hidden-other-userid">{{ticket.author.id}}</p>			    
 				    <label id="user-departure-date" class="text-muted"><b>Travel date: </b>{{ ticket.date }}</label>
 				    <label id="user-departure-time" class="text-muted"><b>Travel time: </b>{{ ticket.time }}</label>
 				    <p id="user-departure-email" class="article-content">Contact the luggage <b>{{ ticket.is_giver }}</b>: {{ticket.author.email}}</p>
@@ -25,32 +24,13 @@
 				    {% else %}
 					    	<label style="color:red" title="{{ticket.author.username}} has not submitted pdf ticket as a proof of travel">not verified</label> 
 				    {% endif %}
-				    <button id="chat-button-{{forloop.counter}}" class="form-submit-button" onclick="openForm({{loggedInUser.id}}, {{ ticket.author.id }}, '{{loggedInUser.username}}', '{{ticket.author.username}}')">Chat Now</button>
+				    <button id="idStartChatButton-{{forloop.counter}}-{{ticket.author.id}}-{{ticket.author.username}}" class="form-submit-button">Chat Now</button>
 				  </div>
 				</article>
 			</li>
 		</div>
 		{% endfor %}
 		</ul>
-		 <div class="chat-popup" id="myForm">
-			  <div class="form-container">
-			    <b><label id="other-user" for="other-user" style="background: #0066A2; width: 180px; padding-left: 5px; position: absolute; word-wrap: break-word; color: white; font-size:16px">Messages</label></b>
-			    <button type="button" onclick="closeForm()" style="margin-left: 180px; width: 30px; font-size:12px; background: #96b5e0; color: red;">X</button>
-			 
-			    <div class="content">
-					<div id='div-messages' class="messages" style="width: 210px; height: 300px; overflow:hidden; overflow-y:scroll;">
-						<div id="chat-log" style="font-size: 16px; list-style-type:none;" >
-						</div>
-					</div>
-					<div class="message-input">
-						<div class="wrap">
-						<input id="chat-message-input" type="text" autocomplete="off" placeholder="Write your message..." style="width: 160px; position: absolute; border: 1px solid black; word-wrap: break-word; font-size:16px"/>
-						<button class="submit" id="chat-message-submit" style="margin-left: 160px; width: 50px; font-size:16px; border: 1px solid black; background: #0066A2; color: white;" onclick="sendMessage('{{loggedInUser.username}}');">Send</button>
-						</div>
-					</div>
-				</div>
-			  </div>
-		</div> 
 </div>
 
 	  {% if submitted_tickets.has_next %}
@@ -71,94 +51,6 @@
 	        $('.loading').hide();
 	      }
 	    });
-
-	    const allRooms = firebase.database().ref().child('allRooms');
-	    const allChatsPerUser = firebase.database().ref().child('allChatsPerUser'); // all chats for each user id
-        // var username=$('#loggedInUsername').text();
-        // on page load, chat form should not appear. It should appear only on "Chat Now" clicked
-        document.getElementById("myForm").style.display = "none";
-        let roomName = "000";
-        let g_this_user = "";
-        let g_other_user = "";
-        let number_of_messages_to_load = 0;
-
-
-	    function openForm(first, second, this_user, other_user) {
-	    	number_of_messages_to_load = 30;
-	    	g_this_user = this_user;
-	    	g_other_user = other_user;
-	      console.log(other_user);
-		  if(first < second)
-		  	roomName = first*1000000000000+second;
-		  else
-		  	roomName = second*1000000000000+first;
-		  console.log(roomName);
-		  document.getElementById("other-user").innerHTML = other_user;
-		  document.getElementById("myForm").style.display = "block";
-
-		    // load all previous messages
-		    let chat = document.getElementById('chat-log');
-		    let str = Object.assign("", chat.innerHTML);
-		    chat.innerHTML = "";
-		    // check if roomName exists na
-        	allRooms.child(roomName).orderByKey().limitToLast(number_of_messages_to_load).on('value', snapshot => {
-			    // console.log(snapshot.val());
-			    let str_temp="";
-			    console.log(number_of_messages_to_load);
-			    snapshot.forEach((messageSnapshot) => {
-			      // console.log(messageSnapshot.key);
-			      // console.log(messageSnapshot.val().message);
-			      // console.log("loop length");
-			      if(messageSnapshot.val().sender === this_user)
-			      	str_temp += '<div align="right"><span style="background: #96b5e0; border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
-			      else
-			      	str_temp += '<div align="left"><span style="border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
-			    });
-
-			    chat.innerHTML = str_temp;
-			    //scroll to bottom of the chat
-			    var e = document.getElementById('div-messages');
-				e.scrollTop = e.scrollHeight;
-			    // console.log(str_temp);
-		  });
-		 
-		}
-
-		function closeForm() {
-		  document.getElementById("myForm").style.display = "none";
-		} 
-		window.onload = function(){
-			closeForm();
-		} 
-
-		document.getElementById('chat-message-input').onkeyup = function(e) {
-            if (e.keyCode === 13) {  // enter, return
-                document.getElementById('chat-message-submit').click();
-                // console.log("pressed...");
-            }
-        };
-
-        function sendMessage(this_user){
-        	console.log("Send message called");
-        	number_of_messages_to_load = 1;
-        	let time = new Date().getTime(); // in milliseconds
-        	let msg = document.getElementById("chat-message-input").value;
-        	document.getElementById("chat-message-input").value="";
-
-        	allRooms.child(roomName).push({
-        		sender: this_user,
-        		message: msg,
-        		time: time
-        	});
-        	console.log(g_other_user);
-        	allChatsPerUser.child(this_user).child(g_other_user).set({
-	        last_message: msg,
-	        room_id: roomName,
-	        last_message_timestamp: "12:34",
-	        last_seen: "4 minutes ago",
-	      });
-        }
-
 
 	  </script>
 {% endif %}

@@ -1,4 +1,3 @@
-{% load crispy_forms_tags %}
 {% if posts %}
 	<div id="divCurrentUserAllTickets" class="infinite-container">
 	<ul class="list-unstyled" id="currentUserTicketList">
@@ -15,7 +14,7 @@
 				    <label id="user-departure-airport" class="text-muted"><b>From: </b>{{ ticket.departure_airport }} </label>
 				    <label id="user-arrival-airport" class="text-muted"><b>To: </b>{{ ticket.arrival_airport }} </label>
 				    <label id="user-flight-number" class="text-muted"><b>Flight no. </b>{{ ticket.flight_number }}</label>
-				    <p hidden id="current-user-ticket-id" class="article-content">{{ ticket.id }}</p>
+				    <p hidden id="hidden-current-user-ticket-id" class="article-content">{{ ticket.id }}</p>
 				    <label id="user-departure-date" class="text-muted"><b>Travel date: </b>{{ ticket.date }}</label>
 				    <!-- <label id="user-departure-time" class="text-muted"><b>Travel time: </b>{{ ticket.time }}</label> -->
 				    <!-- <p id="user-departure-email" class="article-content">Contact the luggage <b>{{ ticket.is_giver }}</b>: {{ticket.author.email}}</p> -->
@@ -26,11 +25,13 @@
 				    		<label style="color:red">I'm not verified</label>
 				    		<u><a href={% url 'verify_me' ticket.id %}> Verify me!</a></u>
 				    	{% endif %}
-				    	{% if ticket.is_giver == 'giver' %}
-					    Click anywere to view all co-travellers who has less baggage
-					    {% else %}
-					    Click anywhere to view all co-travellers who has excess baggage
-					    {% endif %}
+				    	<button id="idProducerConsumer" class="form-submit-button">
+					    	{% if ticket.is_giver == 'giver' %}
+						    	Less baggage co-travellers
+						    {% else %}
+						    	Excess baggage co-travellers
+						    {% endif %}
+					    </button>
 				  </div>
 				</article>
 			</li>
