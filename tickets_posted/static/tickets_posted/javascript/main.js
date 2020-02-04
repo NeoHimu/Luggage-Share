@@ -283,6 +283,13 @@ user_input_departure.on('keyup', function () {
 			      	str_temp += '<div align="right"><span style="background: #96b5e0; border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
 			      else
 			      	str_temp += '<div align="left"><span style="border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
+			    
+			        allChatsPerUser.child(g_this_user).child(g_other_user).set({
+				        last_message: messageSnapshot.val().message,
+				        room_id: roomName,
+				        last_message_timestamp: "12:34",
+				        last_seen: "4 minutes ago",
+				    });
 			    });
 
 			    chat.innerHTML = str_temp;
@@ -320,28 +327,46 @@ user_input_departure.on('keyup', function () {
         		time: time
         	});
         	console.log(g_other_user);
-        	allChatsPerUser.child(g_this_user).child(g_other_user).set({
-	        last_message: msg,
-	        room_id: roomName,
-	        last_message_timestamp: "12:34",
-	        last_seen: "4 minutes ago",
-	      });
         }
 
         $('#div-all-chats').click(function() {
 			// console.log("hello world!");
-			console.log($('#hidden-this-username').val());
-			console.log($('#hidden-this-userid').val());
+			// console.log($('#hidden-this-username').val());
+			// console.log($('#hidden-this-userid').val());
 
 			allChatsPerUser.child($('#hidden-this-username').val()).orderByKey().limitToLast(10).on('value', snapshot => {
 			    // console.log(snapshot.val());
+			    temp_all_chats = "";
+			    let id_count=1;
 			    snapshot.forEach((messageSnapshot) => {
-
 			    	let sender = messageSnapshot.key;
 			    	let last_message = messageSnapshot.val().last_message;
-			      	console.log(sender, last_message);
-			      });
+			    	let last_message_timestamp = messageSnapshot.val().last_message_timestamp;
+			    	let room_id = messageSnapshot.val().room_id;
+			      	// console.log(sender, last_message);
+			      	temp_all_chats +=
+			      	'<div id='+id_count+'><article class="media content-section content-box">\
+					  <img class="rounded-circle article-img" src="#">\
+					  <div class="media-body">\
+					    <div class="article-metadata content-box">\
+					      <a class="mr-2" href="#">'+sender+'</a>\
+					      <small class="text-muted">'+last_message_timestamp+'</small>\
+					    </div>\
+					    <label class="text-muted">'+last_message+'</label>\
+					    <p id="id-room">'+room_id+'</p>\
+					  </div>\
+					</div>';
+					id_count += 1;
+			    });
+			    $('#idAllChatsCumTicket').html(temp_all_chats);
+			    // console.log(temp_all_chats);
 		    });
 		});
+
+
+        $('#idAllChatsCumTicket').click(function(e){
+        	console.log(e.target.text);
+        	console.log("hello");
+        });
 
 });
