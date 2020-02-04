@@ -300,6 +300,51 @@ user_input_departure.on('keyup', function () {
 		  });
 		}
 
+		function openForm_with_roomId(room_id, this_user, other_user) {
+	    	number_of_messages_to_load = 30;
+	    	g_this_user = this_user;
+	    	g_other_user = other_user;
+	      // console.log(other_user);
+	      roomName = room_id;
+		  console.log(roomName);
+		  document.getElementById("other-user").innerHTML = other_user;
+		  document.getElementById("myForm").style.display = "block";
+
+		    // load all previous messages
+		    let chat = document.getElementById('chat-log');
+		    let str = Object.assign("", chat.innerHTML);
+		    chat.innerHTML = "";
+		    // check if roomName exists na
+        	allRooms.child(roomName).orderByKey().limitToLast(number_of_messages_to_load).on('value', snapshot => {
+			    // console.log(snapshot.val());
+			    let str_temp="";
+			    console.log(number_of_messages_to_load);
+			    snapshot.forEach((messageSnapshot) => {
+			      // console.log(messageSnapshot.key);
+			      // console.log(messageSnapshot.val().message);
+			      // console.log("loop length");
+			      if(messageSnapshot.val().sender === this_user)
+			      	str_temp += '<div align="right"><span style="background: #96b5e0; border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
+			      else
+			      	str_temp += '<div align="left"><span style="border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
+			    
+			        allChatsPerUser.child(g_this_user).child(g_other_user).set({
+				        last_message: messageSnapshot.val().message,
+				        room_id: roomName,
+				        last_message_timestamp: "12:34",
+				        last_seen: "4 minutes ago",
+				    });
+			    });
+
+			    chat.innerHTML = str_temp;
+			    //scroll to bottom of the chat
+			    var e = document.getElementById('div-messages');
+				e.scrollTop = e.scrollHeight;
+			    // console.log(str_temp);
+		  });
+		}
+
+
 		function closeForm() {
 		  document.getElementById("myForm").style.display = "none";
 		} 
@@ -337,7 +382,6 @@ user_input_departure.on('keyup', function () {
 			allChatsPerUser.child($('#hidden-this-username').val()).orderByKey().limitToLast(10).on('value', snapshot => {
 			    // console.log(snapshot.val());
 			    temp_all_chats = "";
-			    let id_count=1;
 			    snapshot.forEach((messageSnapshot) => {
 			    	let sender = messageSnapshot.key;
 			    	let last_message = messageSnapshot.val().last_message;
@@ -345,18 +389,11 @@ user_input_departure.on('keyup', function () {
 			    	let room_id = messageSnapshot.val().room_id;
 			      	// console.log(sender, last_message);
 			      	temp_all_chats +=
-			      	'<div id='+id_count+'><article class="media content-section content-box">\
-					  <img class="rounded-circle article-img" src="#">\
-					  <div class="media-body">\
-					    <div class="article-metadata content-box">\
-					      <a class="mr-2" href="#">'+sender+'</a>\
-					      <small class="text-muted">'+last_message_timestamp+'</small>\
-					    </div>\
-					    <label class="text-muted">'+last_message+'</label>\
-					    <p id="id-room">'+room_id+'</p>\
-					  </div>\
+			      	'<div id='+room_id+'-'+sender+'>\
+						      <small id='+room_id+'-'+sender+' class="text-muted">'+sender+'</small>\
+						      <small id='+room_id+'-'+sender+' class="text-muted">'+last_message_timestamp+'</small>\
+						    <small id='+room_id+'-'+sender+' class="text-muted">'+last_message+'</small>\
 					</div>';
-					id_count += 1;
 			    });
 			    $('#idAllChatsCumTicket').html(temp_all_chats);
 			    // console.log(temp_all_chats);
@@ -365,8 +402,15 @@ user_input_departure.on('keyup', function () {
 
 
         $('#idAllChatsCumTicket').click(function(e){
-        	console.log(e.target.text);
-        	console.log("hello");
+        	// this gives the room id and sender name
+        	console.log(e.target.id);
+        	let room_sender = e.target.id.split('-');
+        	let room_id = room_sender[0];
+        	let other_user = room_sender[1];
+        	let this_user = $('#hidden-this-username').val();
+
+        	openForm_with_roomId(room_id, this_user, other_user);
+
         });
 
 });
