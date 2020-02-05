@@ -279,9 +279,9 @@ user_input_departure.on('keyup', function () {
 			      // console.log(messageSnapshot.key);
 			      // console.log(messageSnapshot.val().message);
 			      // console.log("loop length");
-			      if(messageSnapshot.val().sender === this_user)
+			      if(messageSnapshot.val().sender === g_this_user)
 			      	str_temp += '<div align="right"><span style="background: #96b5e0; border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
-			      else
+			      else if(messageSnapshot.val().sender === g_other_user)
 			      	str_temp += '<div align="left"><span style="border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
 			    
 			        allChatsPerUser.child(g_this_user).child(g_other_user).set({
