@@ -246,6 +246,8 @@ user_input_departure.on('keyup', function () {
         let g_this_user = "";
         let g_other_user = "";
         let number_of_messages_to_load = 0;
+        let active_room = "NA";
+        let isTicketForm = "True";
 
 
         $('#idCloseChatButton').on('click', closeForm);
@@ -262,6 +264,7 @@ user_input_departure.on('keyup', function () {
 		  	roomName = first*1000000000000+second;
 		  else
 		  	roomName = second*1000000000000+first;
+		  active_room = roomName;
 		  console.log(roomName);
 		  document.getElementById("other-user").innerHTML = other_user;
 		  document.getElementById("myForm").style.display = "block";
@@ -270,6 +273,8 @@ user_input_departure.on('keyup', function () {
 		    let chat = document.getElementById('chat-log');
 		    let str = Object.assign("", chat.innerHTML);
 		    chat.innerHTML = "";
+		    let last_message = "";
+		    let last_message_timestamp = "";
 		    // check if roomName exists na
         	allRooms.child(roomName).orderByKey().limitToLast(number_of_messages_to_load).on('value', snapshot => {
 			    // console.log(snapshot.val());
@@ -283,21 +288,8 @@ user_input_departure.on('keyup', function () {
 			      	str_temp += '<div align="right"><span style="background: #96b5e0; border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
 			      else if(messageSnapshot.val().sender === g_other_user)
 			      	str_temp += '<div align="left"><span style="border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
-			    
-			        allChatsPerUser.child(g_this_user).child(roomName).set({
-				        last_message: messageSnapshot.val().message,
-				        other_user: g_other_user,
-				        last_message_timestamp: "12:34",
-				        last_seen: "4 minutes ago",
-				    });
-			        allChatsPerUser.child(g_other_user).child(roomName).set({
-				        last_message: messageSnapshot.val().message,
-				        other_user: g_this_user,
-				        last_message_timestamp: "12:34",
-				        last_seen: "4 minutes ago",
-				    });
-
-				    console.log(g_this_user);
+			      last_message = messageSnapshot.val().message;
+			      last_message_timestamp = messageSnapshot.val().time;
 			    });
 
 			    chat.innerHTML = str_temp;
@@ -305,23 +297,33 @@ user_input_departure.on('keyup', function () {
 			    var e = document.getElementById('div-messages');
 				e.scrollTop = e.scrollHeight;
 			    // console.log(str_temp);
+			    // update the seen status of the clicked chat
+			    if(active_room !== "NA"){
+			    	allChatsPerUser.child(g_this_user).child(active_room).set({
+					last_message: last_message,
+					other_user: g_other_user,
+					last_message_timestamp: last_message_timestamp,
+					is_read: "yes",
+				});	
+			    }
 		  });
 		}
 
-		function openForm_with_roomId(room_id, this_user, other_user) {
+		function openForm_with_roomId(roomName, this_user, other_user) {
 	    	number_of_messages_to_load = 30;
 	    	g_this_user = this_user;
 	    	g_other_user = other_user;
+	    	active_room = roomName;
 	      // console.log(other_user);
-	      roomName = room_id;
 		  console.log(roomName);
 		  document.getElementById("other-user").innerHTML = other_user;
 		  document.getElementById("myForm").style.display = "block";
 
 		    // load all previous messages
 		    let chat = document.getElementById('chat-log');
-		    let str = Object.assign("", chat.innerHTML);
 		    chat.innerHTML = "";
+		    let last_message = "";
+		    let last_message_timestamp = "";
 		    // check if roomName exists na
         	allRooms.child(roomName).orderByKey().limitToLast(number_of_messages_to_load).on('value', snapshot => {
 			    // console.log(snapshot.val());
@@ -335,20 +337,9 @@ user_input_departure.on('keyup', function () {
 			      	str_temp += '<div align="right"><span style="background: #96b5e0; border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
 			      else
 			      	str_temp += '<div align="left"><span style="border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
-			    
-			        allChatsPerUser.child(g_this_user).child(roomName).set({
-				        last_message: messageSnapshot.val().message,
-				        other_user: g_other_user,
-				        last_message_timestamp: "12:34",
-				        last_seen: "4 minutes ago",
-				    });
-				    allChatsPerUser.child(g_other_user).child(roomName).set({
-				        last_message: messageSnapshot.val().message,
-				        other_user: g_this_user,
-				        last_message_timestamp: "12:34",
-				        last_seen: "4 minutes ago",
-				    });
-			        console.log(g_this_user);
+			        // console.log(g_this_user);
+			        last_message = messageSnapshot.val().message;
+			        last_message_timestamp = messageSnapshot.val().time;
 			    });
 
 			    chat.innerHTML = str_temp;
@@ -356,12 +347,22 @@ user_input_departure.on('keyup', function () {
 			    var e = document.getElementById('div-messages');
 				e.scrollTop = e.scrollHeight;
 			    // console.log(str_temp);
+			    // update the seen status of the clicked chat
+			    if(active_room !== "NA"){
+			    	allChatsPerUser.child(g_this_user).child(active_room).set({
+					last_message: last_message,
+					other_user: g_other_user,
+					last_message_timestamp: last_message_timestamp,
+					is_read: "yes",
+				});	
+			    }
 		  });
 		}
 
 
 		function closeForm() {
-		  document.getElementById("myForm").style.display = "none";
+			active_room = "NA";
+		    document.getElementById("myForm").style.display = "none";
 		} 
 		window.onload = function(){
 			closeForm();
@@ -386,33 +387,77 @@ user_input_departure.on('keyup', function () {
         		message: msg,
         		time: time
         	});
-        	console.log(g_other_user);
+        	allChatsPerUser.child(g_this_user).child(roomName).set({
+				last_message: msg,
+				other_user: g_other_user,
+				last_message_timestamp: new Date().getTime()+"",
+				is_read: "yes",
+			});
+		    allChatsPerUser.child(g_other_user).child(roomName).set({
+				last_message: msg,
+				other_user: g_this_user,
+				last_message_timestamp: new Date().getTime()+"",
+				is_read: "no",
+			});
+        	// console.log(g_other_user);
         }
 
         $('#div-all-chats').click(function() {
 			// console.log("hello world!");
 			// console.log($('#hidden-this-username').val());
 			// console.log($('#hidden-this-userid').val());
-
-			allChatsPerUser.child($('#hidden-this-username').val()).orderByKey().on('value', snapshot => {
+			if(isTicketForm === "True")
+			{
+				isTicketForm = "False";
+				allChatsPerUser.child($('#hidden-this-username').val()).orderByKey().on('value', snapshot => {
 			    // console.log(snapshot.val());
 			    temp_all_chats = "";
 			    snapshot.forEach((messageSnapshot) => {
 			    	let other_user = messageSnapshot.val().other_user;
 			    	let last_message = messageSnapshot.val().last_message;
 			    	let last_message_timestamp = messageSnapshot.val().last_message_timestamp;
-			    	let room_id = messageSnapshot.key;
+			    	let roomName = messageSnapshot.key;
+			    	let is_read = messageSnapshot.val().is_read;
 			      	// console.log(sender, last_message);
-			      	temp_all_chats +=
-			      	'<div id='+room_id+'-'+other_user+'>\
-						      <small id='+room_id+'-'+other_user+' class="text-muted">'+other_user+'</small>\
-						      <small id='+room_id+'-'+other_user+' class="text-muted">'+last_message_timestamp+'</small>\
-						    <small id='+room_id+'-'+other_user+' class="text-muted">'+last_message+'</small>\
-					</div>';
+			      	let temp="";
+			      	if(is_read === "no")
+					{
+						temp = '<div id='+roomName+'-'+other_user+'>\
+						           <small id='+roomName+'-'+other_user+'-'+last_message_timestamp +'-'+last_message+' class="text-muted"><b>'+other_user+'</b></small>\
+						           <small id='+roomName+'-'+other_user+'-'+last_message_timestamp +'-'+last_message+' class="text-muted">'+last_message_timestamp+'</small>\
+						           <small id='+roomName+'-'+other_user+'-'+last_message_timestamp +'-'+last_message+' class="text-muted">'+last_message+'</small>\
+								</div>';
+					}
+					else
+					{
+						temp = '<div id='+roomName+'-'+other_user+'>\
+						           <small id='+roomName+'-'+other_user+'-'+last_message_timestamp+'-'+last_message+' class="text-muted">'+other_user+'</small>\
+						           <small id='+roomName+'-'+other_user+'-'+last_message_timestamp+'-'+last_message+' class="text-muted">'+last_message_timestamp+'</small>\
+						           <small id='+roomName+'-'+other_user+'-'+last_message_timestamp+'-'+last_message+' class="text-muted">'+last_message+'</small>\
+								</div>';
+					}
+			      	
+					temp_all_chats += temp;
+					// if(roomName === active_room){
+			  //   		is_read = "yes";
+			  //   		// write it in the database
+			  //   		allChatsPerUser.child($('#hidden-this-username').val()).child(roomName).set({
+					//         other_user: other_user,
+					//         last_message: last_message,
+					//         last_message_timestamp:Chats last_message_timestamp,
+					//         is_read: is_read,
+				 //    	});
+			  //   	}
 			    });
 			    $('#idAllChatsCumTicket').html(temp_all_chats);
 			    // console.log(temp_all_chats);
-		    });
+		     });
+			}
+			else{
+				$('#idAllChatsCumTicket').html("");
+				isTicketForm = "True";
+			}
+			
 		});
 
         $('#idAllChatsCumTicket').click(function(e){
@@ -421,8 +466,22 @@ user_input_departure.on('keyup', function () {
         	let room_sender = e.target.id.split('-');
         	let room_id = room_sender[0];
         	let other_user = room_sender[1];
+        	let last_message_timestamp = room_sender[2];
+        	let last_message = room_sender[3];
         	let this_user = $('#hidden-this-username').val();
-
+        	active_room = room_id;
+        	// to ensure that correct room has opened and not "000" room
+        	roomName = room_id;
+        	// homework for hiding all chats
+        	$('#idAllChatsCumTicket').html("");
+			isTicketForm = "True";
+			// update the seen status of the clicked chat
+			allChatsPerUser.child(this_user).child(active_room).set({
+				last_message: last_message,
+				other_user: other_user,
+				last_message_timestamp: last_message_timestamp,
+				is_read: "yes",
+			});
         	openForm_with_roomId(room_id, this_user, other_user);
         });
 
