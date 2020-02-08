@@ -31,7 +31,7 @@ $(document).ready(function(){
 			$('#is-giver').val(retrievedObject["is_giver"]);
 
 	// when user logs in, change all values in local storage to empty		
-	is_user_loggedin = $('#is-user-loggedin').text()
+	let is_user_loggedin = $('#is-user-loggedin').text()
 		console.log(is_user_loggedin)
 		if(is_user_loggedin === 'True')
 		{
@@ -153,7 +153,7 @@ $("#currentUserTicketList li").click(function(e) {
 
 $(document).on('submit', '#ticket-info-form', function(e){
 	e.preventDefault(); // this prevents from refreshing the page
-	is_user_loggedin = $('#is-user-loggedin').text()
+	let is_user_loggedin = $('#is-user-loggedin').text()
 	console.log(is_user_loggedin)
 	if(is_user_loggedin === 'False')
 	{
@@ -284,12 +284,20 @@ user_input_departure.on('keyup', function () {
 			      else if(messageSnapshot.val().sender === g_other_user)
 			      	str_temp += '<div align="left"><span style="border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
 			    
-			        allChatsPerUser.child(g_this_user).child(g_other_user).set({
+			        allChatsPerUser.child(g_this_user).child(roomName).set({
 				        last_message: messageSnapshot.val().message,
-				        room_id: roomName,
+				        other_user: g_other_user,
 				        last_message_timestamp: "12:34",
 				        last_seen: "4 minutes ago",
 				    });
+			        allChatsPerUser.child(g_other_user).child(roomName).set({
+				        last_message: messageSnapshot.val().message,
+				        other_user: g_this_user,
+				        last_message_timestamp: "12:34",
+				        last_seen: "4 minutes ago",
+				    });
+
+				    console.log(g_this_user);
 			    });
 
 			    chat.innerHTML = str_temp;
@@ -328,12 +336,19 @@ user_input_departure.on('keyup', function () {
 			      else
 			      	str_temp += '<div align="left"><span style="border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
 			    
-			        allChatsPerUser.child(g_this_user).child(g_other_user).set({
+			        allChatsPerUser.child(g_this_user).child(roomName).set({
 				        last_message: messageSnapshot.val().message,
-				        room_id: roomName,
+				        other_user: g_other_user,
 				        last_message_timestamp: "12:34",
 				        last_seen: "4 minutes ago",
 				    });
+				    allChatsPerUser.child(g_other_user).child(roomName).set({
+				        last_message: messageSnapshot.val().message,
+				        other_user: g_this_user,
+				        last_message_timestamp: "12:34",
+				        last_seen: "4 minutes ago",
+				    });
+			        console.log(g_this_user);
 			    });
 
 			    chat.innerHTML = str_temp;
@@ -379,27 +394,26 @@ user_input_departure.on('keyup', function () {
 			// console.log($('#hidden-this-username').val());
 			// console.log($('#hidden-this-userid').val());
 
-			allChatsPerUser.child($('#hidden-this-username').val()).orderByKey().limitToLast(10).on('value', snapshot => {
+			allChatsPerUser.child($('#hidden-this-username').val()).orderByKey().on('value', snapshot => {
 			    // console.log(snapshot.val());
 			    temp_all_chats = "";
 			    snapshot.forEach((messageSnapshot) => {
-			    	let sender = messageSnapshot.key;
+			    	let other_user = messageSnapshot.val().other_user;
 			    	let last_message = messageSnapshot.val().last_message;
 			    	let last_message_timestamp = messageSnapshot.val().last_message_timestamp;
-			    	let room_id = messageSnapshot.val().room_id;
+			    	let room_id = messageSnapshot.key;
 			      	// console.log(sender, last_message);
 			      	temp_all_chats +=
-			      	'<div id='+room_id+'-'+sender+'>\
-						      <small id='+room_id+'-'+sender+' class="text-muted">'+sender+'</small>\
-						      <small id='+room_id+'-'+sender+' class="text-muted">'+last_message_timestamp+'</small>\
-						    <small id='+room_id+'-'+sender+' class="text-muted">'+last_message+'</small>\
+			      	'<div id='+room_id+'-'+other_user+'>\
+						      <small id='+room_id+'-'+other_user+' class="text-muted">'+other_user+'</small>\
+						      <small id='+room_id+'-'+other_user+' class="text-muted">'+last_message_timestamp+'</small>\
+						    <small id='+room_id+'-'+other_user+' class="text-muted">'+last_message+'</small>\
 					</div>';
 			    });
 			    $('#idAllChatsCumTicket').html(temp_all_chats);
 			    // console.log(temp_all_chats);
 		    });
 		});
-
 
         $('#idAllChatsCumTicket').click(function(e){
         	// this gives the room id and sender name
@@ -410,7 +424,6 @@ user_input_departure.on('keyup', function () {
         	let this_user = $('#hidden-this-username').val();
 
         	openForm_with_roomId(room_id, this_user, other_user);
-
         });
 
 });
