@@ -42,6 +42,7 @@
 	        <div class="navbar-nav">
 	        	{% if user.is_authenticated %}
 	        	  <label class="nav-item nav-link" id="div-all-chats">Chats</label>
+	        	  <label id="idCountUnreadChats"></label>
 	        	  <input type="hidden" id="hidden-this-username" value='{{user.username}}'>
 	        	  <input type="hidden" id="hidden-this-userid" value='{{user.id}}'>
      			  <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>

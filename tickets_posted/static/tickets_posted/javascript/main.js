@@ -303,7 +303,7 @@ user_input_departure.on('keyup', function () {
 					last_message: last_message,
 					other_user: g_other_user,
 					last_message_timestamp: last_message_timestamp,
-					is_read: "yes",
+					unread_message_count: 0,
 				});	
 			    }
 		  });
@@ -353,7 +353,7 @@ user_input_departure.on('keyup', function () {
 					last_message: last_message,
 					other_user: g_other_user,
 					last_message_timestamp: last_message_timestamp,
-					is_read: "yes",
+					unread_message_count: 0,
 				});	
 			    }
 		  });
@@ -391,13 +391,13 @@ user_input_departure.on('keyup', function () {
 				last_message: msg,
 				other_user: g_other_user,
 				last_message_timestamp: new Date().getTime()+"",
-				is_read: "yes",
+				unread_message_count: 0,
 			});
 		    allChatsPerUser.child(g_other_user).child(roomName).set({
 				last_message: msg,
 				other_user: g_this_user,
 				last_message_timestamp: new Date().getTime()+"",
-				is_read: "no",
+				unread_message_count: 1,
 			});
         	// console.log(g_other_user);
         }
@@ -409,7 +409,7 @@ user_input_departure.on('keyup', function () {
 			if(isTicketForm === "True")
 			{
 				isTicketForm = "False";
-				allChatsPerUser.child($('#hidden-this-username').val()).orderByKey().on('value', snapshot => {
+				allChatsPerUser.child($('#hidden-this-username').val()).on('value', snapshot => {
 			    // console.log(snapshot.val());
 			    temp_all_chats = "";
 			    snapshot.forEach((messageSnapshot) => {
@@ -417,10 +417,10 @@ user_input_departure.on('keyup', function () {
 			    	let last_message = messageSnapshot.val().last_message;
 			    	let last_message_timestamp = messageSnapshot.val().last_message_timestamp;
 			    	let roomName = messageSnapshot.key;
-			    	let is_read = messageSnapshot.val().is_read;
+			    	let unread_message_count = messageSnapshot.val().unread_message_count;
 			      	// console.log(sender, last_message);
 			      	let temp="";
-			      	if(is_read === "no")
+			      	if(parseInt(unread_message_count) > 0)
 					{
 						temp = '<div id='+roomName+'-'+other_user+'>\
 						           <small id='+roomName+'-'+other_user+'-'+last_message_timestamp +'-'+last_message+' class="text-muted"><b>'+other_user+'</b></small>\
@@ -438,16 +438,6 @@ user_input_departure.on('keyup', function () {
 					}
 			      	
 					temp_all_chats += temp;
-					// if(roomName === active_room){
-			  //   		is_read = "yes";
-			  //   		// write it in the database
-			  //   		allChatsPerUser.child($('#hidden-this-username').val()).child(roomName).set({
-					//         other_user: other_user,
-					//         last_message: last_message,
-					//         last_message_timestamp:Chats last_message_timestamp,
-					//         is_read: is_read,
-				 //    	});
-			  //   	}
 			    });
 			    $('#idAllChatsCumTicket').html(temp_all_chats);
 			    // console.log(temp_all_chats);
@@ -477,12 +467,32 @@ user_input_departure.on('keyup', function () {
 			isTicketForm = "True";
 			// update the seen status of the clicked chat
 			allChatsPerUser.child(this_user).child(active_room).set({
+				unread_message_count: 0,
 				last_message: last_message,
-				other_user: other_user,
-				last_message_timestamp: last_message_timestamp,
-				is_read: "yes",
+				other_user: g_other_user,
+				last_message_timestamp: last_message_timestamp
 			});
+			// allChatsPerUser.child(this_user).child(active_room).on('value', )
         	openForm_with_roomId(room_id, this_user, other_user);
         });
 
+        //update the count of unread messages
+        allChatsPerUser.child($('#hidden-this-username').val()).on('value', snapshot => {
+			    // console.log(snapshot.val());
+			    let unread_chat_count=0;
+			    snapshot.forEach((messageSnapshot) => {
+			    	let unread_message_count = messageSnapshot.val().unread_message_count;
+			      	// console.log(sender, last_message);
+			      	if(parseInt(unread_message_count) > 0)
+					{	
+						unread_chat_count += 1;
+					}
+			    });
+			    if(unread_chat_count > 0)
+			    	$('#idCountUnreadChats').html(unread_chat_count+"");
+				else
+					$('#idCountUnreadChats').html("");
+
+			    // console.log(temp_all_chats);
+		});
 });
