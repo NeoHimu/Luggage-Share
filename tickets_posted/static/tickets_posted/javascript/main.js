@@ -280,10 +280,12 @@ user_input_departure.on('keyup', function () {
 			    // console.log(snapshot.val());
 			    let str_temp="";
 			    console.log(number_of_messages_to_load);
+			    let last_message_sender = g_this_user;
 			    snapshot.forEach((messageSnapshot) => {
 			      // console.log(messageSnapshot.key);
 			      // console.log(messageSnapshot.val().message);
 			      // console.log("loop length");
+			      last_message_sender = messageSnapshot.val().sender;
 			      if(messageSnapshot.val().sender === g_this_user)
 			      	str_temp += '<div align="right"><span style="background: #96b5e0; border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
 			      else if(messageSnapshot.val().sender === g_other_user)
@@ -291,7 +293,26 @@ user_input_departure.on('keyup', function () {
 			      last_message = messageSnapshot.val().message;
 			      last_message_timestamp = messageSnapshot.val().time;
 			    });
-
+			    if(last_message_sender === g_this_user){
+			    	  allChatsPerUser.child(g_other_user).child(roomName).on('value', snapshot => {
+					      // console.log(snapshot.val());
+					      snapshot.forEach((messageSnapshot) => {
+					      	if(messageSnapshot.key === "unread_message_count")
+					      	{
+					      	  console.log("unread: "+messageSnapshot.val());
+					    	  if(parseInt(messageSnapshot.val()) > 0)
+					    	  	$('#idSeenNotSeen').html("not seen");
+						  	  else if(parseInt(messageSnapshot.val()) === 0)
+							  	$('#idSeenNotSeen').html("seen");
+							  else
+							  	$('#idSeenNotSeen').html("");
+							}
+				         });
+			         });
+			    }
+			    else{
+			    	$('#idSeenNotSeen').html("");
+			    }
 			    chat.innerHTML = str_temp;
 			    //scroll to bottom of the chat
 			    var e = document.getElementById('div-messages');
@@ -329,10 +350,12 @@ user_input_departure.on('keyup', function () {
 			    // console.log(snapshot.val());
 			    let str_temp="";
 			    console.log(number_of_messages_to_load);
+			    let last_message_sender = g_this_user;
 			    snapshot.forEach((messageSnapshot) => {
 			      // console.log(messageSnapshot.key);
 			      // console.log(messageSnapshot.val().message);
 			      // console.log("loop length");
+			      last_message_sender = messageSnapshot.val().sender;
 			      if(messageSnapshot.val().sender === this_user)
 			      	str_temp += '<div align="right"><span style="background: #96b5e0; border-color: #e1eaf7;  border-radius: 25px;">'+messageSnapshot.val().message+'</span></div>';
 			      else
@@ -341,7 +364,27 @@ user_input_departure.on('keyup', function () {
 			        last_message = messageSnapshot.val().message;
 			        last_message_timestamp = messageSnapshot.val().time;
 			    });
-
+			    if(last_message_sender === g_this_user){
+			    	  allChatsPerUser.child(g_other_user).child(roomName).on('value', snapshot => {
+					      // console.log(snapshot.val());
+					      snapshot.forEach((messageSnapshot) => {
+					      	if(messageSnapshot.key === "unread_message_count")
+					      	{
+					      	  console.log("unread: "+messageSnapshot.val());
+					    	  if(parseInt(messageSnapshot.val()) > 0)
+					    	  	$('#idSeenNotSeen').html("not seen");
+						  	  else if(parseInt(messageSnapshot.val()) === 0)
+							  	$('#idSeenNotSeen').html("seen");
+							  else
+							  	$('#idSeenNotSeen').html("");
+							}
+				         });
+			         });
+			    }
+			    else
+			    {
+			    	$('#idSeenNotSeen').html("");
+			    }
 			    chat.innerHTML = str_temp;
 			    //scroll to bottom of the chat
 			    var e = document.getElementById('div-messages');
@@ -354,7 +397,7 @@ user_input_departure.on('keyup', function () {
 					other_user: g_other_user,
 					last_message_timestamp: last_message_timestamp,
 					unread_message_count: 0,
-				});	
+				  });		
 			    }
 		  });
 		}
@@ -398,6 +441,31 @@ user_input_departure.on('keyup', function () {
 				other_user: g_this_user,
 				last_message_timestamp: new Date().getTime()+"",
 				unread_message_count: 1,
+			});
+			allChatsPerUser.child(g_other_user).child(roomName).on('value', snapshot => {
+			      // console.log(snapshot.val());
+			      let sender = g_this_user;
+			      let unread_message_count = 1;
+			      snapshot.forEach((messageSnapshot) => {
+			      	if(messageSnapshot.key === "unread_message_count")
+			      	{
+			      	  unread_message_count = messageSnapshot.val()
+			      	  console.log("unread: "+messageSnapshot.val());
+					}
+			      });
+
+			    allRooms.child(roomName).orderByKey().limitToLast(1).on('value', snapshot => {
+				    // console.log(snapshot.val());
+				    snapshot.forEach((messageSnapshot) => {
+				    	sender = messageSnapshot.val().sender;
+				    });
+				});
+				if(unread_message_count > 0 && sender===g_this_user)
+			    	$('#idSeenNotSeen').html("not seen");
+				else if(unread_message_count === 0 && sender===g_this_user)
+					$('#idSeenNotSeen').html("seen");
+			    else
+					$('#idSeenNotSeen').html("");
 			});
         	// console.log(g_other_user);
         }
@@ -492,7 +560,7 @@ user_input_departure.on('keyup', function () {
 			    	$('#idCountUnreadChats').html(unread_chat_count+"");
 				else
 					$('#idCountUnreadChats').html("");
-
 			    // console.log(temp_all_chats);
 		});
+		
 });
