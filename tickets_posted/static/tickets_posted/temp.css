@@ -253,3 +253,13 @@ select {
 
 #myForm { position: fixed; bottom:0; right:0;  z-index: 1;}
 .chat { border: 1px solid #999; float: right; position: relative; margin: 0 5px; }
+
+
+
+#map_canvas {
+    width: 980px;
+    height: 500px;
+}
+#current {
+    padding-top: 25px;
+}

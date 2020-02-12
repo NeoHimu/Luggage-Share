@@ -1,38 +1,58 @@
 {% if submitted_tickets %}
-<div id="divAllDemandedUserTickets" class="infinite-container">
-	<ul style="list-style-type:none" id="demandedUserTicketList">
-		{% for ticket in submitted_tickets %}
-		<div class="infinite-item">
-			<li id="{{forloop.counter}}">
-				<article class="media content-section content-box">
-				  <img class="rounded-circle article-img" src="{{ ticket.author.profile.image.url }}">
-				  <div class="media-body">
-				    <div class="article-metadata content-box">
-				      <a class="mr-2" href="#">{{ ticket.author.username }}</a>
-				      <small class="text-muted">{{ ticket.date_posted }}</small>
-				    </div>
-				    <label id="user-departure-airport" class="text-muted"><b>From: </b>{{ ticket.departure_airport }} </label>
-				    <label id="user-arrival-airport" class="text-muted"><b>To: </b>{{ ticket.arrival_airport }} </label>
-				    <label id="user-flight-number" class="text-muted"><b>Flight no. </b>{{ ticket.flight_number }}</label>
-				    <p hidden id="hidden-other-username" class="article-content">{{ ticket.author.username }}</p>	
-				    <p hidden id="hidden-other-userid">{{ticket.author.id}}</p>			    
-				    <label id="user-departure-date" class="text-muted"><b>Travel date: </b>{{ ticket.date }}</label>
-				    <label id="user-departure-time" class="text-muted"><b>Travel time: </b>{{ ticket.time }}</label>
-				    <p id="user-departure-email" class="article-content">Contact the luggage <b>{{ ticket.is_giver }}</b>: {{ticket.author.email}}</p>
-				    {% if ticket.is_verified %}
-				    		<label style="color:green">verified</label>
-				    {% else %}
-					    	<label style="color:red" title="{{ticket.author.username}} has not submitted pdf ticket as a proof of travel">not verified</label> 
-				    {% endif %}
-				    <button id="idStartChatButton-{{forloop.counter}}-{{ticket.author.id}}-{{ticket.author.username}}" class="form-submit-button">Chat Now</button>
-				  </div>
-				</article>
-			</li>
-		</div>
-		{% endfor %}
-		</ul>
-</div>
+<div class="container">
+  <ul class="nav nav-tabs nav-justified">
+  	<li><a style="font-size:16px;" data-toggle="tab" href="#id-cab-to-ariport-tab">Cab to Airport</a></li>
+    <li style="font-size:16px;" class="active"><a data-toggle="tab" href="#id-baggage-share-tab">Share baggage</a></li>
+    <li><a style="font-size:16px;" data-toggle="tab" href="#id-cab-from-airport-tab">Cab from Airport</a></li>
+  </ul>
 
+  <div class="tab-content">
+  	<div id="id-cab-to-ariport-tab" class="tab-pane fade">
+  		    <section>
+		        <div id='map_canvas'></div>
+		        <div id="current">Nothing yet...</div>
+		    </section>
+    </div>
+    <div id="id-baggage-share-tab" class="tab-pane fade in active">
+      <div id="divAllDemandedUserTickets" class="infinite-container">
+		<ul style="list-style-type:none" id="demandedUserTicketList">
+			{% for ticket in submitted_tickets %}
+			<div class="infinite-item">
+				<li id="{{forloop.counter}}">
+					<article class="media content-section content-box">
+					  <img class="rounded-circle article-img" src="{{ ticket.author.profile.image.url }}">
+					  <div class="media-body">
+					    <div class="article-metadata content-box">
+					      <a class="mr-2" href="#">{{ ticket.author.username }}</a>
+					      <small class="text-muted">{{ ticket.date_posted }}</small>
+					    </div>
+					    <label id="user-departure-airport" class="text-muted"><b>From: </b>{{ ticket.departure_airport }} </label>
+					    <label id="user-arrival-airport" class="text-muted"><b>To: </b>{{ ticket.arrival_airport }} </label>
+					    <label id="user-flight-number" class="text-muted"><b>Flight no. </b>{{ ticket.flight_number }}</label>
+					    <p hidden id="hidden-other-username" class="article-content">{{ ticket.author.username }}</p>	
+					    <p hidden id="hidden-other-userid">{{ticket.author.id}}</p>			    
+					    <label id="user-departure-date" class="text-muted"><b>Travel date: </b>{{ ticket.date }}</label>
+					    <label id="user-departure-time" class="text-muted"><b>Travel time: </b>{{ ticket.time }}</label>
+					    <p id="user-departure-email" class="article-content">Contact the luggage <b>{{ ticket.is_giver }}</b>: {{ticket.author.email}}</p>
+					    {% if ticket.is_verified %}
+					    		<label style="color:green">verified</label>
+					    {% else %}
+						    	<label style="color:red" title="{{ticket.author.username}} has not submitted pdf ticket as a proof of travel">not verified</label> 
+					    {% endif %}
+					    <button id="idStartChatButton-{{forloop.counter}}-{{ticket.author.id}}-{{ticket.author.username}}" class="form-submit-button">Chat Now</button>
+					  </div>
+					</article>
+				</li>
+			</div>
+			{% endfor %}
+			</ul>
+	   </div>
+    </div>
+    <div id="id-cab-from-airport-tab" class="tab-pane fade">
+      <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+    </div>
+  </div>
+</div>
 	  {% if submitted_tickets.has_next %}
 	    <a class="infinite-more-link" href="?page={{ submitted_tickets.next_page_number }}">More</a>
 	  {% endif %}
@@ -51,6 +71,29 @@
 	        $('.loading').hide();
 	      }
 	    });
+
+
+	    var map = new google.maps.Map(document.getElementById('map_canvas'), {
+		    zoom: 1,
+		    center: new google.maps.LatLng(35.137879, -82.836914),
+		    mapTypeId: google.maps.MapTypeId.ROADMAP
+		});
+
+		var myMarker = new google.maps.Marker({
+		    position: new google.maps.LatLng(47.651968, 9.478485),
+		    draggable: true
+		});
+
+		google.maps.event.addListener(myMarker, 'dragend', function (evt) {
+		    document.getElementById('current').innerHTML = '<p>Marker dropped: Current Lat: ' + evt.latLng.lat().toFixed(3) + ' Current Lng: ' + evt.latLng.lng().toFixed(3) + '</p>';
+		});
+
+		google.maps.event.addListener(myMarker, 'dragstart', function (evt) {
+		    document.getElementById('current').innerHTML = '<p>Currently dragging marker...</p>';
+		});
+
+		map.setCenter(myMarker.position);
+		myMarker.setMap(map);
 
 	  </script>
 {% endif %}

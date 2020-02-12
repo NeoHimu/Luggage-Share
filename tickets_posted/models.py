@@ -29,8 +29,13 @@ class Ticket(models.Model):
 
 class Airport(models.Model):
 	name = models.CharField(max_length=100)
-	code = models.CharField(max_length=20)
-	city = models.CharField(max_length=20)
+	code = models.CharField(max_length=5)
+	city = models.CharField(max_length=40)
+	country = models.CharField(max_length=40)
+	lat = models.FloatField()
+	lng = models.FloatField()
+	alt = models.FloatField()
+	timezone = models.FloatField()
 
 	def __str__(self):
 		return self.name
