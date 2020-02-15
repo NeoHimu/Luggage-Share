@@ -19,6 +19,14 @@ class Ticket(models.Model):
 	date_posted = models.DateTimeField(default=timezone.now)
 	author = models.ForeignKey(User, on_delete=models.CASCADE)
 	is_verified = models.BooleanField(default=False)
+	lat_dep = models.FloatField(default=0.1)
+	lng_dep = models.FloatField(default=0.1)
+	lat_arr = models.FloatField(default=0.1)
+	lng_arr = models.FloatField(default=0.1)
+	lat_dep_user = models.FloatField(default=0.1)
+	lng_dep_user = models.FloatField(default=0.1)
+	lat_arr_user = models.FloatField(default=0.1)
+	lng_arr_user = models.FloatField(default=0.1)
 
 	def __str__(self):
 		return self.arrival_airport

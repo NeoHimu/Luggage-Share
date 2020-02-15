@@ -127,21 +127,31 @@ def isValidPdfTicket(pdf_url, airport1, airport2):
 
 def load_demanded_users(request):
     if request.method=='POST':
-        departure_airport = request.POST.get('departure_airport')
-        arrival_airport = request.POST.get('arrival_airport')
-        flight_number = request.POST.get('flight_number')
+        departure_airport = request.POST.get('departure_airport').strip(' ')
+        arrival_airport = request.POST.get('arrival_airport').strip(' ')
+        flight_number = request.POST.get('flight_number').strip(' ')
         date = request.POST.get('date')
         time = request.POST.get('time')
         is_giver = request.POST.get('is_giver')
-
-        Ticket.objects.create(
+        # print(departure_airport)
+        dep = Airport.objects.get(name=departure_airport)
+        arr = Airport.objects.get(name=arrival_airport)
+        lat_dep = dep.lat;
+        lng_dep = dep.lng;
+        lat_arr = arr.lat;
+        lng_arr = arr.lng;
+        ticket_created = Ticket.objects.create(
             departure_airport=departure_airport,
             arrival_airport=arrival_airport,
             flight_number = flight_number,
             date = date,
             time = time,
             is_giver = is_giver,
-            author = request.user
+            author = request.user,
+            lat_dep = lat_dep,
+            lng_dep = lng_dep,
+            lat_arr = lat_arr,
+            lng_arr = lng_arr
             )
   
         query_role='giver'
@@ -151,7 +161,7 @@ def load_demanded_users(request):
         submitted_tickets = Ticket.objects.filter(departure_airport=departure_airport, arrival_airport=arrival_airport, flight_number=flight_number, date=date, is_giver=query_role).order_by('-date')
         
         html = render_to_string(
-            template_name="tickets_posted/demanded_users.html", context={"submitted_tickets": submitted_tickets, "loggedInUser": request.user}
+            template_name="tickets_posted/demanded_users.html", context={"submitted_tickets": submitted_tickets, "loggedInUser": request.user, "current_ticket_id":ticket_created.id}
             )
         data_dict = {"html_from_view": html}
         return JsonResponse(data=data_dict, safe=False)
@@ -176,12 +186,40 @@ def load_matched_users(request):
         print(submitted_tickets)
 
         html = render_to_string(
-            template_name="tickets_posted/demanded_users.html", context={"submitted_tickets": submitted_tickets, "loggedInUser": request.user}
+            template_name="tickets_posted/demanded_users.html", context={"submitted_tickets": submitted_tickets, "loggedInUser": request.user, "current_ticket_id":ticket_id}
             )
         data_dict = {"html_from_view": html}
         return JsonResponse(data=data_dict, safe=False)
 
+@login_required
+def update_location_departure(request):
+    if request.method=='POST':
 
+        drop_airport_lat = request.POST.get('drop_airport_lat')
+        drop_airport_lng = request.POST.get('drop_airport_lng')
+        current_ticket_id = request.POST.get('current_ticket_id')
+
+        ticket_created = Ticket.objects.get(id=current_ticket_id)
+        ticket_created.lat_dep_user = drop_airport_lat
+        ticket_created.lng_dep_user = drop_airport_lng
+        ticket_created.save()
+        data_dict = {"html_from_view": "success departure"}
+        return JsonResponse(data=data_dict, safe=False)
+
+@login_required
+def update_location_arrival(request):
+    if request.method=='POST':
+
+        pickup_airport_lat = request.POST.get('pickup_airport_lat')
+        pickup_airport_lng = request.POST.get('pickup_airport_lng')
+        current_ticket_id = request.POST.get('current_ticket_id')
+        # print("current ticket: ",current_ticket_id)
+        ticket_created = Ticket.objects.get(id=current_ticket_id)
+        ticket_created.lat_arr_user = pickup_airport_lat
+        ticket_created.lng_arr_user = pickup_airport_lng
+        ticket_created.save()
+        data_dict = {"html_from_view": "success arrival"}
+        return JsonResponse(data=data_dict, safe=False)
 # @login_required
 # def userhomepage(request):
 #     return redirect(home)
@@ -247,7 +285,6 @@ def load_matched_users(request):
 def about(request):
 	return render(request, 'tickets_posted/about.html')
 
-
 def load_airports_departure(request):
     ctx = {}
     url_parameter = request.GET.get("q")
@@ -267,7 +304,6 @@ def load_airports_departure(request):
         )
         data_dict = {"html_from_view": html}
         return JsonResponse(data=data_dict, safe=False)
-
 
 def load_airports_arrival(request):
     ctx = {}

@@ -1,19 +1,20 @@
 {% if submitted_tickets %}
 <div class="container">
   <ul class="nav nav-tabs nav-justified">
-  	<li><a style="font-size:16px;" data-toggle="tab" href="#id-cab-to-ariport-tab">Cab to Airport</a></li>
-    <li style="font-size:16px;" class="active"><a data-toggle="tab" href="#id-baggage-share-tab">Share baggage</a></li>
+  	<li><a style="font-size:16px;" data-toggle="tab" href="#id-cab-to-ariport-tab">Cab to Airport...</a></li>
+    <li style="font-size:16px;" class="active"><a data-toggle="tab" href="#id-baggage-share-tab">Share baggage...</a></li>
     <li><a style="font-size:16px;" data-toggle="tab" href="#id-cab-from-airport-tab">Cab from Airport</a></li>
   </ul>
 
   <div class="tab-content">
   	<div id="id-cab-to-ariport-tab" class="tab-pane fade">
   		    <section>
-		        <div id='map_canvas'></div>
-		        <div id="current">Nothing yet...</div>
+		        <div id='map-canvas-departure' style="z-index: 1"></div>
+		        <div id="id-current-departure">Drag the marker change the location</div>
+		        <button id="id-save-my-location-departure"> Save my location</button>
 		    </section>
     </div>
-    <div id="id-baggage-share-tab" class="tab-pane fade in active">
+    <div id="id-baggage-share-tab" class="tab-pane fade active">
       <div id="divAllDemandedUserTickets" class="infinite-container">
 		<ul style="list-style-type:none" id="demandedUserTicketList">
 			{% for ticket in submitted_tickets %}
@@ -29,8 +30,13 @@
 					    <label id="user-departure-airport" class="text-muted"><b>From: </b>{{ ticket.departure_airport }} </label>
 					    <label id="user-arrival-airport" class="text-muted"><b>To: </b>{{ ticket.arrival_airport }} </label>
 					    <label id="user-flight-number" class="text-muted"><b>Flight no. </b>{{ ticket.flight_number }}</label>
-					    <p hidden id="hidden-other-username" class="article-content">{{ ticket.author.username }}</p>	
-					    <p hidden id="hidden-other-userid">{{ticket.author.id}}</p>			    
+					    <p hidden id="hidden-other-username" class="article-content">{{ ticket.author.username }}</p>
+					    <p hidden id="hidden-other-userid">{{ticket.author.id}}</p>			 
+					    <p hidden  id="hidden-lat-dep">{{ticket.lat_dep}}</label>   
+					    <p hidden  id="hidden-lng-dep">{{ticket.lng_dep}}</label>   
+					    <p hidden  id="hidden-lat-arr">{{ticket.lat_arr}}</label>   
+					    <p hidden  id="hidden-lng-arr">{{ticket.lng_arr}}
+					    </label>   
 					    <label id="user-departure-date" class="text-muted"><b>Travel date: </b>{{ ticket.date }}</label>
 					    <label id="user-departure-time" class="text-muted"><b>Travel time: </b>{{ ticket.time }}</label>
 					    <p id="user-departure-email" class="article-content">Contact the luggage <b>{{ ticket.is_giver }}</b>: {{ticket.author.email}}</p>
@@ -49,7 +55,11 @@
 	   </div>
     </div>
     <div id="id-cab-from-airport-tab" class="tab-pane fade">
-      <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+  		    <section>
+		        <div id='map-canvas-arrival' style="z-index: 1"></div>
+		        <div id="id-current-arrival">Drag the marker change the location</div>
+		        <button id="id-save-my-location-arrival"> Save my location</button>
+		    </section>
     </div>
   </div>
 </div>
@@ -72,28 +82,131 @@
 	      }
 	    });
 
+	    var pickup_points = [];
+	    var drop_airport_lat = parseFloat(document.getElementById('hidden-lat-dep').innerText);
+	    var drop_airport_lng = parseFloat(document.getElementById('hidden-lng-dep').innerText);
 
-	    var map = new google.maps.Map(document.getElementById('map_canvas'), {
-		    zoom: 1,
-		    center: new google.maps.LatLng(35.137879, -82.836914),
+	    // console.log(drop_airport_lat.innerText);
+
+	    var pickup_airport_lat = parseFloat(document.getElementById('hidden-lat-arr').innerText);
+	    var pickup_airport_lng = parseFloat(document.getElementById('hidden-lng-arr').innerText);
+	    var drop_points = [];
+
+	    var mapDeparture = new google.maps.Map(document.getElementById('map-canvas-departure'), {
+		    zoom: 15,
+		    center: new google.maps.LatLng(drop_airport_lat, drop_airport_lng),
 		    mapTypeId: google.maps.MapTypeId.ROADMAP
 		});
 
-		var myMarker = new google.maps.Marker({
-		    position: new google.maps.LatLng(47.651968, 9.478485),
+		var myMarkerDeparture = new google.maps.Marker({
+		    position: new google.maps.LatLng(drop_airport_lat, drop_airport_lng),
 		    draggable: true
 		});
 
-		google.maps.event.addListener(myMarker, 'dragend', function (evt) {
-		    document.getElementById('current').innerHTML = '<p>Marker dropped: Current Lat: ' + evt.latLng.lat().toFixed(3) + ' Current Lng: ' + evt.latLng.lng().toFixed(3) + '</p>';
+	    var mapArrival = new google.maps.Map(document.getElementById('map-canvas-arrival'), {
+		    zoom: 15,
+		    center: new google.maps.LatLng(pickup_airport_lat, pickup_airport_lng),
+		    mapTypeId: google.maps.MapTypeId.ROADMAP
 		});
 
-		google.maps.event.addListener(myMarker, 'dragstart', function (evt) {
-		    document.getElementById('current').innerHTML = '<p>Currently dragging marker...</p>';
+		var myMarkerArrival = new google.maps.Marker({
+		    position: new google.maps.LatLng(pickup_airport_lat, pickup_airport_lng),
+		    draggable: true
 		});
 
-		map.setCenter(myMarker.position);
-		myMarker.setMap(map);
+		if(navigator.geolocation){
+			navigator.geolocation.getCurrentPosition(setCurrentLocationArrival);
+			navigator.geolocation.getCurrentPosition(setCurrentLocationDeparture);
+		}
+		else
+		{
+			console.log("this browser does not support geolocation");
+		}
+
+		function setCurrentLocationDeparture(position){
+			myMarkerDeparture = new google.maps.Marker({
+		    position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
+		    draggable: true
+			});
+
+			google.maps.event.addListener(myMarkerDeparture, 'dragend', function (evt) {
+		    document.getElementById('id-current-departure').innerHTML = '<p>Marker dropped: Current Lat: ' + evt.latLng.lat().toFixed(3) + ' Current Lng: ' + evt.latLng.lng().toFixed(3) + '</p>';
+		 		drop_airport_lat = evt.latLng.lat();
+		 		drop_airport_lng = evt.latLng.lng();
+			});
+
+			google.maps.event.addListener(myMarkerDeparture, 'dragstart', function (evt) {
+			    document.getElementById('id-current-departure').innerHTML = '<p>Currently dragging marker...</p>';
+			});
+
+			mapDeparture.setCenter(myMarkerDeparture.position);
+			myMarkerDeparture.setMap(mapDeparture);
+		}
+
+		function setCurrentLocationArrival(position){
+			myMarkerArrival = new google.maps.Marker({
+		    position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
+		    draggable: true
+			});
+
+			google.maps.event.addListener(myMarkerArrival, 'dragend', function (evt) {
+		    document.getElementById('id-current-arrival').innerHTML = '<p>Marker dropped: Current Lat: ' + evt.latLng.lat().toFixed(3) + ' Current Lng: ' + evt.latLng.lng().toFixed(3) + '</p>';
+		 		pickup_airport_lat = evt.latLng.lat();
+		 		pickup_airport_lng = evt.latLng.lng();
+			});
+
+			google.maps.event.addListener(myMarkerArrival, 'dragstart', function (evt) {
+			    document.getElementById('id-current-arrival').innerHTML = '<p>Currently dragging marker...</p>';
+			});
+
+			mapArrival.setCenter(myMarkerArrival.position);
+			myMarkerArrival.setMap(mapArrival);
+		}
+
+		$('#id-save-my-location-departure').on('click', function(){
+				// console.log(drop_airport_lat, drop_airport_lng);
+				// console.log("current ticket id: ", {{current_ticket_id}});
+
+			$.ajax({
+				url: '/update-location-departure/', //ajax call will be made to this url
+				type: 'post',
+				data:{
+					drop_airport_lat:drop_airport_lat,
+					drop_airport_lng:drop_airport_lng,
+					current_ticket_id:{{current_ticket_id}},
+					// ticket_pdf:$('#ticket-pdf').val()
+					csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+				},
+	        	enctype: 'multipart/form-data',
+				dataType: "json",
+				success: function(response){
+					console.log(response['html_from_view']);
+				}
+			});
+		});
+
+		$('#id-save-my-location-arrival').on('click', function(){
+				// console.log(drop_airport_lat, drop_airport_lng);
+				// console.log("current ticket id: ", {{current_ticket_id}});
+
+			$.ajax({
+				url: '/update-location-arrival/', //ajax call will be made to this url
+				type: 'post',
+				data:{
+					pickup_airport_lat:pickup_airport_lat,
+					pickup_airport_lng:pickup_airport_lng,
+					current_ticket_id:{{current_ticket_id}},
+					// ticket_pdf:$('#ticket-pdf').val()
+					csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+				},
+	        	enctype: 'multipart/form-data',
+				dataType: "json",
+				success: function(response){
+					console.log(response['html_from_view']);
+				}
+			});
+		});
+		
 
 	  </script>
 {% endif %}

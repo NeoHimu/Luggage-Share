@@ -196,7 +196,6 @@ $(document).on('submit', '#ticket-info-form', function(e){
 				$("#ticket-info-form").trigger('reset');//clear the form
 				demanded_users.html(response['html_from_view']);
 				divCurrentUserAllTickets.html("");
-
 			}
 		});
 });
@@ -254,10 +253,15 @@ user_input_departure.on('keyup', function () {
         $('#chat-message-submit').on('click', sendMessage);
 
 	    function openForm(first, second, this_user, other_user) {
-	    	number_of_messages_to_load = 30;
-	    	g_this_user = this_user;
-	    	g_other_user = other_user;
-	      // console.log(other_user);
+	      number_of_messages_to_load = 30;
+	      g_this_user = this_user;
+	      g_other_user = other_user;
+	      if(isNaN(second))
+	      {
+	      	return;
+	      }
+	      console.log(first);
+	      console.log(second);	      
 	      first = parseInt(first);
 	      second = parseInt(second);
 		  if(first < second)
@@ -294,6 +298,8 @@ user_input_departure.on('keyup', function () {
 			      last_message_timestamp = messageSnapshot.val().time;
 			    });
 			    if(last_message_sender === g_this_user){
+			    	if(g_other_user === undefined)
+			    		return;
 			    	  allChatsPerUser.child(g_other_user).child(roomName).on('value', snapshot => {
 					      // console.log(snapshot.val());
 					      snapshot.forEach((messageSnapshot) => {
@@ -534,6 +540,8 @@ user_input_departure.on('keyup', function () {
         	$('#idAllChatsCumTicket').html("");
 			isTicketForm = "True";
 			// update the seen status of the clicked chat
+			if(isNaN(active_room))
+				return;
 			allChatsPerUser.child(this_user).child(active_room).set({
 				unread_message_count: 0,
 				last_message: last_message,

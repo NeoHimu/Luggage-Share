@@ -245,7 +245,7 @@ select {
 .form-container .cancel {
   background-color: red;
 }
-
+  
 /* Add some hover effects to buttons */
 .form-container .btn:hover, .open-button:hover {
   opacity: 1;
@@ -255,11 +255,16 @@ select {
 .chat { border: 1px solid #999; float: right; position: relative; margin: 0 5px; }
 
 
-
-#map_canvas {
+#map-canvas-departure {
     width: 980px;
     height: 500px;
 }
+
+#map-canvas-arrival {
+    width: 980px;
+    height: 500px;
+}
+
 #current {
     padding-top: 25px;
 }
