@@ -32,11 +32,10 @@
 					    <label id="user-flight-number" class="text-muted"><b>Flight no. </b>{{ ticket.flight_number }}</label>
 					    <p hidden id="hidden-other-username" class="article-content">{{ ticket.author.username }}</p>
 					    <p hidden id="hidden-other-userid">{{ticket.author.id}}</p>			 
-					    <p hidden  id="hidden-lat-dep">{{ticket.lat_dep}}</label>   
-					    <p hidden  id="hidden-lng-dep">{{ticket.lng_dep}}</label>   
-					    <p hidden  id="hidden-lat-arr">{{ticket.lat_arr}}</label>   
-					    <p hidden  id="hidden-lng-arr">{{ticket.lng_arr}}
-					    </label>   
+					    <p hidden  id="hidden-lat-dep">{{ticket.lat_dep}}</p>   
+					    <p hidden  id="hidden-lng-dep">{{ticket.lng_dep}}</p>   
+					    <p hidden  id="hidden-lat-arr">{{ticket.lat_arr}}</p>   
+					    <p hidden  id="hidden-lng-arr">{{ticket.lng_arr}}</p>   
 					    <label id="user-departure-date" class="text-muted"><b>Travel date: </b>{{ ticket.date }}</label>
 					    <label id="user-departure-time" class="text-muted"><b>Travel time: </b>{{ ticket.time }}</label>
 					    <p id="user-departure-email" class="article-content">Contact the luggage <b>{{ ticket.is_giver }}</b>: {{ticket.author.email}}</p>
@@ -82,57 +81,97 @@
 	      }
 	    });
 
-	    var pickup_points = [];
-	    var drop_airport_lat = parseFloat(document.getElementById('hidden-lat-dep').innerText);
-	    var drop_airport_lng = parseFloat(document.getElementById('hidden-lng-dep').innerText);
+	    var changed_my_pickup_lat = 0.1;
+		var changed_my_pickup_lng = 0.1;
+		var changed_my_drop_lat = 0.1;
+		var changed_my_drop_lng = 0.1;
+	        // function initMap() {alert("not ok");}
+		    var pickup_points = [];
 
-	    // console.log(drop_airport_lat.innerText);
+		    if({{my_pickup_lat}} === 0.1){
+		    	changed_my_pickup_lat = parseFloat(document.getElementById('hidden-lat-dep').innerText);
+		    }
+		    else{
+		    	changed_my_pickup_lat = parseFloat({{my_pickup_lat}});
+		    }
 
-	    var pickup_airport_lat = parseFloat(document.getElementById('hidden-lat-arr').innerText);
-	    var pickup_airport_lng = parseFloat(document.getElementById('hidden-lng-arr').innerText);
-	    var drop_points = [];
+		    if({{my_pickup_lng}} === 0.1){
+		    	changed_my_pickup_lng = parseFloat(document.getElementById('hidden-lng-dep').innerText);
+		    }
+		    else{
+		    	changed_my_pickup_lng = parseFloat({{my_pickup_lng}});
+		    }
+		    console.log(changed_my_pickup_lat, changed_my_pickup_lng);
+		    // console.log(drop_airport_lat.innerText);
+		    var drop_points = [];
 
-	    var mapDeparture = new google.maps.Map(document.getElementById('map-canvas-departure'), {
-		    zoom: 15,
-		    center: new google.maps.LatLng(drop_airport_lat, drop_airport_lng),
-		    mapTypeId: google.maps.MapTypeId.ROADMAP
-		});
+		    if({{my_drop_lat}} === 0.1)
+		    {
+		    	changed_my_drop_lat = parseFloat(document.getElementById('hidden-lat-arr').innerText);
+		    }
+		    else{
+		    	changed_my_drop_lat = parseFloat({{my_drop_lat}})
+		    }
+		    if({{my_drop_lng}} === 0.1)
+		    {
+		    	changed_my_drop_lng = parseFloat(document.getElementById('hidden-lng-arr').innerText);
+		    }
+		    else{
+		    	changed_my_drop_lng = parseFloat({{my_drop_lng}})
+		    }
 
-		var myMarkerDeparture = new google.maps.Marker({
-		    position: new google.maps.LatLng(drop_airport_lat, drop_airport_lng),
-		    draggable: true
-		});
+		    console.log(changed_my_drop_lat, changed_my_drop_lng);
 
-	    var mapArrival = new google.maps.Map(document.getElementById('map-canvas-arrival'), {
-		    zoom: 15,
-		    center: new google.maps.LatLng(pickup_airport_lat, pickup_airport_lng),
-		    mapTypeId: google.maps.MapTypeId.ROADMAP
-		});
+		    var mapDeparture = null;
+		    var myMarkerDeparture = null;
+		    var mapArrival = null;
+		    var myMarkerArrival = null;
 
-		var myMarkerArrival = new google.maps.Marker({
-		    position: new google.maps.LatLng(pickup_airport_lat, pickup_airport_lng),
-		    draggable: true
-		});
+	    function initMap(){
+		    // console.log({{pickup_airport_lat}}, {{pickup_airport_lng}});
+		    mapDeparture = new google.maps.Map(document.getElementById('map-canvas-departure'), {
+			    zoom: 15,
+			    center: new google.maps.LatLng(changed_my_pickup_lat, changed_my_drop_lng),
+			    mapTypeId: google.maps.MapTypeId.ROADMAP
+			});
 
-		if(navigator.geolocation){
-			navigator.geolocation.getCurrentPosition(setCurrentLocationArrival);
-			navigator.geolocation.getCurrentPosition(setCurrentLocationDeparture);
-		}
-		else
-		{
-			console.log("this browser does not support geolocation");
+			myMarkerDeparture = new google.maps.Marker({
+			    position: new google.maps.LatLng(changed_my_pickup_lat, changed_my_drop_lng),
+			    draggable: true
+			});
+
+		    mapArrival = new google.maps.Map(document.getElementById('map-canvas-arrival'), {
+			    zoom: 15,
+			    center: new google.maps.LatLng(changed_my_drop_lat, changed_my_drop_lng),
+			    mapTypeId: google.maps.MapTypeId.ROADMAP
+			});
+
+			myMarkerArrival = new google.maps.Marker({
+			    position: new google.maps.LatLng(changed_my_drop_lat, changed_my_drop_lng),
+			    draggable: true
+			});
+
+			if(navigator.geolocation){
+				navigator.geolocation.getCurrentPosition(setCurrentLocationArrival);
+				navigator.geolocation.getCurrentPosition(setCurrentLocationDeparture);
+			}
+			else
+			{
+				console.log("this browser does not support geolocation");
+			}
 		}
 
 		function setCurrentLocationDeparture(position){
+			//console.log("departure ", changed_my_pickup_lat, changed_my_pickup_lng)
 			myMarkerDeparture = new google.maps.Marker({
-		    position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
+		    position: new google.maps.LatLng(changed_my_pickup_lat, changed_my_pickup_lng),
 		    draggable: true
 			});
 
 			google.maps.event.addListener(myMarkerDeparture, 'dragend', function (evt) {
 		    document.getElementById('id-current-departure').innerHTML = '<p>Marker dropped: Current Lat: ' + evt.latLng.lat().toFixed(3) + ' Current Lng: ' + evt.latLng.lng().toFixed(3) + '</p>';
-		 		drop_airport_lat = evt.latLng.lat();
-		 		drop_airport_lng = evt.latLng.lng();
+		 		changed_my_pickup_lat = evt.latLng.lat();
+		 		changed_my_pickup_lng = evt.latLng.lng();
 			});
 
 			google.maps.event.addListener(myMarkerDeparture, 'dragstart', function (evt) {
@@ -144,15 +183,17 @@
 		}
 
 		function setCurrentLocationArrival(position){
+			//console.log(changed_my_drop_lat, changed_my_drop_lng)
 			myMarkerArrival = new google.maps.Marker({
-		    position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
+		    // position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
+		    position: new google.maps.LatLng(changed_my_drop_lat, changed_my_drop_lng),
 		    draggable: true
 			});
 
 			google.maps.event.addListener(myMarkerArrival, 'dragend', function (evt) {
 		    document.getElementById('id-current-arrival').innerHTML = '<p>Marker dropped: Current Lat: ' + evt.latLng.lat().toFixed(3) + ' Current Lng: ' + evt.latLng.lng().toFixed(3) + '</p>';
-		 		pickup_airport_lat = evt.latLng.lat();
-		 		pickup_airport_lng = evt.latLng.lng();
+		 		changed_my_drop_lat = evt.latLng.lat();
+		 		changed_my_drop_lng = evt.latLng.lng();
 			});
 
 			google.maps.event.addListener(myMarkerArrival, 'dragstart', function (evt) {
@@ -171,8 +212,8 @@
 				url: '/update-location-departure/', //ajax call will be made to this url
 				type: 'post',
 				data:{
-					drop_airport_lat:drop_airport_lat,
-					drop_airport_lng:drop_airport_lng,
+					my_pickup_lat:changed_my_pickup_lat,
+					my_pickup_lng:changed_my_pickup_lng,
 					current_ticket_id:{{current_ticket_id}},
 					// ticket_pdf:$('#ticket-pdf').val()
 					csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
@@ -193,8 +234,8 @@
 				url: '/update-location-arrival/', //ajax call will be made to this url
 				type: 'post',
 				data:{
-					pickup_airport_lat:pickup_airport_lat,
-					pickup_airport_lng:pickup_airport_lng,
+					my_drop_lat:changed_my_drop_lat,
+					my_drop_lng:changed_my_drop_lng,
 					current_ticket_id:{{current_ticket_id}},
 					// ticket_pdf:$('#ticket-pdf').val()
 					csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
@@ -206,7 +247,10 @@
 				}
 			});
 		});
-		
 
 	  </script>
+	  <script src="https://unpkg.com/@google/markerclustererplus@4.0.1/dist/markerclustererplus.min.js"></script>
+	  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2iSNNGUxqu4e_98fwFbfqNHC3cmr0qYQ&callback=initMap">
+    </script>
 {% endif %}

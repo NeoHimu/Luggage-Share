@@ -153,6 +153,11 @@ def load_demanded_users(request):
             lat_arr = lat_arr,
             lng_arr = lng_arr
             )
+
+        my_pickup_lat=ticket_created.lat_dep_user
+        my_pickup_lng=ticket_created.lng_dep_user
+        my_drop_lat=ticket_created.lat_arr_user
+        my_drop_lng=ticket_created.lng_arr_user
   
         query_role='giver'
         if(is_giver=='giver'):
@@ -161,7 +166,8 @@ def load_demanded_users(request):
         submitted_tickets = Ticket.objects.filter(departure_airport=departure_airport, arrival_airport=arrival_airport, flight_number=flight_number, date=date, is_giver=query_role).order_by('-date')
         
         html = render_to_string(
-            template_name="tickets_posted/demanded_users.html", context={"submitted_tickets": submitted_tickets, "loggedInUser": request.user, "current_ticket_id":ticket_created.id}
+            template_name="tickets_posted/demanded_users.html", context={"submitted_tickets": submitted_tickets, "loggedInUser": request.user, "current_ticket_id":ticket_created.id, 
+                "my_pickup_lat":my_pickup_lat, "my_pickup_lng":my_pickup_lng, "my_drop_lat":my_drop_lat, "my_drop_lng":my_drop_lng }
             )
         data_dict = {"html_from_view": html}
         return JsonResponse(data=data_dict, safe=False)
@@ -181,12 +187,18 @@ def load_matched_users(request):
         if(temp_ticket.is_giver=='giver'):
             query_role = 'taker'
 
+        my_pickup_lat=temp_ticket.lat_dep_user
+        my_pickup_lng=temp_ticket.lng_dep_user
+        my_drop_lat=temp_ticket.lat_arr_user
+        my_drop_lng=temp_ticket.lng_arr_user
+
         submitted_tickets = Ticket.objects.filter(departure_airport=temp_ticket.departure_airport, arrival_airport=temp_ticket.arrival_airport, flight_number=temp_ticket.flight_number, date=temp_ticket.date, is_giver=query_role).order_by('-date')
         
         print(submitted_tickets)
 
         html = render_to_string(
-            template_name="tickets_posted/demanded_users.html", context={"submitted_tickets": submitted_tickets, "loggedInUser": request.user, "current_ticket_id":ticket_id}
+            template_name="tickets_posted/demanded_users.html", context={"submitted_tickets": submitted_tickets, "loggedInUser": request.user, "current_ticket_id":ticket_id,
+                "my_pickup_lat":my_pickup_lat, "my_pickup_lng":my_pickup_lng, "my_drop_lat":my_drop_lat, "my_drop_lng":my_drop_lng}
             )
         data_dict = {"html_from_view": html}
         return JsonResponse(data=data_dict, safe=False)
@@ -195,13 +207,13 @@ def load_matched_users(request):
 def update_location_departure(request):
     if request.method=='POST':
 
-        drop_airport_lat = request.POST.get('drop_airport_lat')
-        drop_airport_lng = request.POST.get('drop_airport_lng')
+        my_pickup_lat = request.POST.get('my_pickup_lat')
+        my_pickup_lng = request.POST.get('my_pickup_lng')
         current_ticket_id = request.POST.get('current_ticket_id')
 
         ticket_created = Ticket.objects.get(id=current_ticket_id)
-        ticket_created.lat_dep_user = drop_airport_lat
-        ticket_created.lng_dep_user = drop_airport_lng
+        ticket_created.lat_dep_user = my_pickup_lat
+        ticket_created.lng_dep_user = my_pickup_lng
         ticket_created.save()
         data_dict = {"html_from_view": "success departure"}
         return JsonResponse(data=data_dict, safe=False)
@@ -210,13 +222,13 @@ def update_location_departure(request):
 def update_location_arrival(request):
     if request.method=='POST':
 
-        pickup_airport_lat = request.POST.get('pickup_airport_lat')
-        pickup_airport_lng = request.POST.get('pickup_airport_lng')
+        my_drop_lat = request.POST.get('my_drop_lat')
+        my_drop_lng = request.POST.get('my_drop_lng')
         current_ticket_id = request.POST.get('current_ticket_id')
         # print("current ticket: ",current_ticket_id)
         ticket_created = Ticket.objects.get(id=current_ticket_id)
-        ticket_created.lat_arr_user = pickup_airport_lat
-        ticket_created.lng_arr_user = pickup_airport_lng
+        ticket_created.lat_arr_user = my_drop_lat
+        ticket_created.lng_arr_user = my_drop_lng
         ticket_created.save()
         data_dict = {"html_from_view": "success arrival"}
         return JsonResponse(data=data_dict, safe=False)
