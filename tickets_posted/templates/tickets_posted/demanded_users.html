@@ -81,6 +81,23 @@
 	      }
 	    });
 
+	    var all_neighbours_departure = [];
+		var all_neighbours_arrival = [];
+		$.ajax({
+				url: '/get-neighbours/', //ajax call will be made to this url
+				type: 'get',
+				data:{
+					current_ticket_id:{{current_ticket_id}},
+					},
+				dataType: "json",
+				success: function(response){
+					all_neighbours_departure = response['all_neighbours_departure'];
+					all_neighbours_arrival = response['all_neighbours_arrival'];
+					console.log(all_neighbours_departure);
+					console.log(all_neighbours_arrival);
+				}
+		});
+
 	    var changed_my_pickup_lat = 0.1;
 		var changed_my_pickup_lng = 0.1;
 		var changed_my_drop_lat = 0.1;
@@ -247,6 +264,7 @@
 				}
 			});
 		});
+
 
 	  </script>
 	  <script src="https://unpkg.com/@google/markerclustererplus@4.0.1/dist/markerclustererplus.min.js"></script>

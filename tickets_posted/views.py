@@ -221,7 +221,6 @@ def update_location_departure(request):
 @login_required
 def update_location_arrival(request):
     if request.method=='POST':
-
         my_drop_lat = request.POST.get('my_drop_lat')
         my_drop_lng = request.POST.get('my_drop_lng')
         current_ticket_id = request.POST.get('current_ticket_id')
@@ -232,6 +231,21 @@ def update_location_arrival(request):
         ticket_created.save()
         data_dict = {"html_from_view": "success arrival"}
         return JsonResponse(data=data_dict, safe=False)
+
+@login_required
+def get_neighbours(request):
+    if request.method == 'GET':
+        current_ticket_id = request.GET.get('current_ticket_id').strip()
+        current_ticket = Ticket.objects.get(id=current_ticket_id)
+        departure_airport = current_ticket.departure_airport
+        arrival_airport = current_ticket.arrival_airport
+
+        all_neighbours_departure = Ticket.objects.filter(departure_airport=departure_airport).values('lat_dep_user', 'lng_dep_user')
+        all_neighbours_arrival = Ticket.objects.filter(arrival_airport=arrival_airport).values('lat_arr_user', 'lng_arr_user')
+        data_dict ={'all_neighbours_departure':list(all_neighbours_departure), 'all_neighbours_arrival':list(all_neighbours_arrival)}
+        return JsonResponse(data=data_dict, safe=False)
+
+
 # @login_required
 # def userhomepage(request):
 #     return redirect(home)

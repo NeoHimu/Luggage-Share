@@ -27,7 +27,8 @@ urlpatterns = [
     path("create/new/ticket/", tickets_posted_views.load_demanded_users, name="demanded_users"),
     path("find-all-matched-users/", tickets_posted_views.load_matched_users, name="matched_users"),
     path("update-location-departure/", tickets_posted_views.update_location_departure, name="update_location_departure"),
-    path("update-location-arrival/", tickets_posted_views.update_location_arrival, name="update_location_arrival"),    
+    path("update-location-arrival/", tickets_posted_views.update_location_arrival, name="update_location_arrival"), 
+    path("get-neighbours/", tickets_posted_views.get_neighbours, name='get_neighbours')  
     # path("ticket-info-submitted/", tickets_posted_views.hello, name="ticket_info_submitted"),
 ]
 
