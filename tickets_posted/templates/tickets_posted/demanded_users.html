@@ -146,17 +146,21 @@
 		    var myMarkerArrival = null;
 		    var markers = null;
 		    var markerCluster = null;
+		    var markersDeparture=null;
+		    var markersArrival=null;
+		    var markerClusterDeparture=null;
+		    var markerClusterArrival=null;
 
 	    function initMap(){
 		    // console.log({{pickup_airport_lat}}, {{pickup_airport_lng}});
 		    mapDeparture = new google.maps.Map(document.getElementById('map-canvas-departure'), {
-			    zoom: 3,
-			    center: new google.maps.LatLng(-31.563910, 147.154312),
+			    zoom: 10,
+			    center: new google.maps.LatLng(changed_my_pickup_lat, changed_my_pickup_lng),//(-31.563910, 147.154312),
 			    mapTypeId: google.maps.MapTypeId.ROADMAP
 			});
 
 			// myMarkerDeparture = new google.maps.Marker({
-			//     position: new google.maps.LatLng(changed_my_pickup_lat, changed_my_drop_lng),
+			//     position: new google.maps.LatLng(changed_my_pickup_lat, changed_my_pickup_lng),
 			//     draggable: true
 			// });
 
@@ -167,57 +171,67 @@
 			  // Note: The code uses the JavaScript Array.prototype.map() method to
 			  // create an array of markers based on a given "locations" array.
 			  // The map() method here has nothing to do with the Google Maps API.
-			  markers = locations.map(function(location, i) {
+			 markersDeparture = all_neighbours_departure.map(function(neighbour, i) {
 			    return new google.maps.Marker({
-			      position: location,
+			      position: {lat:neighbour.lat_dep_user, lng:neighbour.lng_dep_user},
 			      label: labels[i % labels.length]
 			    });
 			  });
 
-
-		 //    mapArrival = new google.maps.Map(document.getElementById('map-canvas-arrival'), {
-			//     zoom: 15,
-			//     center: new google.maps.LatLng(changed_my_drop_lat, changed_my_drop_lng),
-			//     mapTypeId: google.maps.MapTypeId.ROADMAP
-			// });
-
-		    markerCluster = new MarkerClusterer(mapDeparture, markers,
+			markerClusterDeparture = new MarkerClusterer(mapDeparture, markersDeparture,
 			      {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+
+		    mapArrival = new google.maps.Map(document.getElementById('map-canvas-arrival'), {
+			    zoom: 10,
+			    center: new google.maps.LatLng(changed_my_drop_lat, changed_my_drop_lng),
+			    mapTypeId: google.maps.MapTypeId.ROADMAP
+			});
+
 			// myMarkerArrival = new google.maps.Marker({
 			//     position: new google.maps.LatLng(changed_my_drop_lat, changed_my_drop_lng),
 			//     draggable: true
 			// });
 
-			// if(navigator.geolocation){
-			// 	navigator.geolocation.getCurrentPosition(setCurrentLocationArrival);
-			// 	navigator.geolocation.getCurrentPosition(setCurrentLocationDeparture);
-			// }
-			// else
-			// {
-			// 	console.log("this browser does not support geolocation");
-			// }
+			markersArrival = all_neighbours_arrival.map(function(neighbour, i) {
+			    return new google.maps.Marker({
+			      position: {lat:neighbour.lat_arr_user, lng:neighbour.lng_arr_user},
+			      label: labels[i % labels.length]
+			    });
+			  });
+
+			markerClusterArrival = new MarkerClusterer(mapArrival, markersArrival,
+			      {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+
+			if(navigator.geolocation){
+				navigator.geolocation.getCurrentPosition(setCurrentLocationArrival);
+				navigator.geolocation.getCurrentPosition(setCurrentLocationDeparture);
+			}
+			else
+			{
+				console.log("this browser does not support geolocation");
+			}
 		}
 
 		function setCurrentLocationDeparture(position){
 			// Add a marker clusterer to manage the markers.
-			//console.log("departure ", changed_my_pickup_lat, changed_my_pickup_lng)
-			// myMarkerDeparture = new google.maps.Marker({
-		 //    position: new google.maps.LatLng(changed_my_pickup_lat, changed_my_pickup_lng),
-		 //    draggable: true
-			// });
+			console.log("departure ", changed_my_pickup_lat, changed_my_pickup_lng)
+			myMarkerDeparture = new google.maps.Marker({
+		    position: new google.maps.LatLng(changed_my_pickup_lat, changed_my_pickup_lng),
+		    draggable: true
+			});
 
-			// google.maps.event.addListener(myMarkerDeparture, 'dragend', function (evt) {
-		 //    document.getElementById('id-current-departure').innerHTML = '<p>Marker dropped: Current Lat: ' + evt.latLng.lat().toFixed(3) + ' Current Lng: ' + evt.latLng.lng().toFixed(3) + '</p>';
-		 // 		changed_my_pickup_lat = evt.latLng.lat();
-		 // 		changed_my_pickup_lng = evt.latLng.lng();
-			// });
+			google.maps.event.addListener(myMarkerDeparture, 'dragend', function (evt) {
+		    document.getElementById('id-current-departure').innerHTML = '<p>Marker dropped: Current Lat: ' + evt.latLng.lat().toFixed(3) + ' Current Lng: ' + evt.latLng.lng().toFixed(3) + '</p>';
+		 		changed_my_pickup_lat = evt.latLng.lat();
+		 		changed_my_pickup_lng = evt.latLng.lng();
+			});
 
-			// google.maps.event.addListener(myMarkerDeparture, 'dragstart', function (evt) {
-			//     document.getElementById('id-current-departure').innerHTML = '<p>Currently dragging marker...</p>';
-			// });
+			google.maps.event.addListener(myMarkerDeparture, 'dragstart', function (evt) {
+			    document.getElementById('id-current-departure').innerHTML = '<p>Currently dragging marker...</p>';
+			});
 
-			// mapDeparture.setCenter(myMarkerDeparture.position);
-			// myMarkerDeparture.setMap(mapDeparture);
+			mapDeparture.setCenter(myMarkerDeparture.position);
+			myMarkerDeparture.setMap(mapDeparture);
 		}
 
 		function setCurrentLocationArrival(position){
