@@ -240,9 +240,11 @@ def get_neighbours(request):
         departure_airport = current_ticket.departure_airport
         arrival_airport = current_ticket.arrival_airport
 
-        all_neighbours_departure = Ticket.objects.filter(departure_airport=departure_airport).values('lat_dep_user', 'lng_dep_user')
-        all_neighbours_arrival = Ticket.objects.filter(arrival_airport=arrival_airport).values('lat_arr_user', 'lng_arr_user')
-        data_dict ={'all_neighbours_departure':list(all_neighbours_departure), 'all_neighbours_arrival':list(all_neighbours_arrival)}
+        all_neighbours_departure = Ticket.objects.filter(departure_airport=departure_airport).values('lat_dep_user', 'lng_dep_user', 'author')
+        all_neighbours_departure = [ {'lat_dep_user':obj['lat_dep_user'], 'lng_dep_user':obj['lng_dep_user'], 'author':User.objects.get(id=obj['author']).username} for obj in list(all_neighbours_departure)]
+        all_neighbours_arrival = Ticket.objects.filter(arrival_airport=arrival_airport).values('lat_arr_user', 'lng_arr_user', 'author')
+        all_neighbours_arrival = [ {'lat_arr_user':obj['lat_arr_user'], 'lng_arr_user':obj['lng_arr_user'], 'author':User.objects.get(id=obj['author']).username} for obj in list(all_neighbours_arrival)]
+        data_dict ={'all_neighbours_departure':all_neighbours_departure, 'all_neighbours_arrival':all_neighbours_arrival}
         return JsonResponse(data=data_dict, safe=False)
 
 
