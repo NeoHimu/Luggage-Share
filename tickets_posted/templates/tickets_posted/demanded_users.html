@@ -11,7 +11,7 @@
   <div class="tab-content">
   	<div id="id-cab-to-ariport-tab" class="tab-pane fade">
   		    <section>
-  		    	<input id="pac-input" class="controls" type="text" placeholder="Search Box">
+  		    	<input id="pac-input-departure" class="controls" type="text" placeholder="Search Box">
 		        <div id='map-canvas-departure' style="z-index: 1"></div>
 		        <div id="id-current-departure">Drag the marker change the location</div>
 		        <button id="id-save-my-location-departure"> Save my location</button>
@@ -58,6 +58,7 @@
     </div>
     <div id="id-cab-from-airport-tab" class="tab-pane fade">
   		    <section>
+  		    	<input id="pac-input-arrival" class="controls" type="text" placeholder="Search Box">
 		        <div id='map-canvas-arrival' style="z-index: 1"></div>
 		        <div id="id-current-arrival">Drag the marker change the location</div>
 		        <button id="id-save-my-location-arrival"> Save my location</button>
@@ -151,6 +152,8 @@
 		    var markersArrival=null;
 		    var markerClusterDeparture=null;
 		    var markerClusterArrival=null;
+		    var markerSearchDeparture=null;
+		    var markerSearchArrival=null;
 
 	    function initMap(){
 		    // console.log({{pickup_airport_lat}}, {{pickup_airport_lng}});
@@ -160,33 +163,60 @@
 			    mapTypeId: google.maps.MapTypeId.ROADMAP
 			});
 
-		  //   var searchBoxDeparture = new google.maps.places.SearchBox(document.getElementById('pac-input'));
-			 //   mapDeparture.controls[google.maps.ControlPosition.TOP_CENTER].push(document.getElementById('pac-input'));
-			 //   google.maps.event.addListener(searchBoxDeparture, 'places_changed', function() {
-			 //     // searchBoxDeparture.set('mapDeparture', null);
-			 //     var places = searchBoxDeparture.getPlaces();
-			 //     var bounds = new google.maps.LatLngBounds();
-			 //     var i, place;
-			 //     for (i = 0; place = places[i]; i++) {
-			 //       (function(place) {
-			 //         var marker = new google.maps.Marker({
-			 //           position: place.geometry.location
-			 //         });
-			 //         marker.bindTo('mapDeparture', searchBoxDeparture, 'mapDeparture');
-			 //         google.maps.event.addListener(marker, 'map_changed', function() {
-			 //           if (!this.getMap()) {
-			 //             this.unbindAll();
-			 //           }
-			 //         });
-			 //         bounds.extend(place.geometry.location);
-			 //       }(place));
-			 //     }
-			 //    mapDeparture.fitBounds(bounds);
-			 //    searchBoxDeparture.set('mapDeparture', mapDeparture);
-			 //    mapDeparture.setZoom(Math.min(mapDeparture.getZoom(),15));
-			 // });
+		    var inputDeparture = document.getElementById('pac-input-departure');
+		    mapDeparture.controls[google.maps.ControlPosition.TOP_LEFT].push(inputDeparture);
 
+		    var autocompleteDeparture = new google.maps.places.Autocomplete(inputDeparture);
+		    autocompleteDeparture.bindTo('bounds', mapDeparture);
 
+		    var infowindowDeparture = new google.maps.InfoWindow();
+		    markerSearchDeparture = new google.maps.Marker({
+		        map: mapDeparture,
+		        anchorPoint: new google.maps.Point(0, -29),
+		        draggable: true
+		    });
+
+	    	autocompleteDeparture.addListener('place_changed', function() {
+	        infowindowDeparture.close();
+	        markerSearchDeparture.setVisible(false);
+	        var placeDeparture = autocompleteDeparture.getPlace();
+	        if (!placeDeparture.geometry) {
+	            window.alert("Autocomplete's returned place contains no geometry");
+	            return;
+	        }
+	  
+	        // If the place has a geometry, then present it on a map.
+	        if (placeDeparture.geometry.viewport) {
+	            mapDeparture.fitBounds(placeDeparture.geometry.viewport);
+	        } else {
+	            mapDeparture.setCenter(placeDeparture.geometry.location);
+	            mapDeparture.setZoom(17);
+	        }
+	        changed_my_pickup_lat = placeDeparture.geometry.location.lat();
+	        changed_my_pickup_lng = placeDeparture.geometry.location.lng();
+	        markerSearchDeparture.setIcon(({
+	            url: placeDeparture.icon,
+	            size: new google.maps.Size(71, 71),
+	            origin: new google.maps.Point(0, 0),
+	            anchor: new google.maps.Point(17, 34),
+	            scaledSize: new google.maps.Size(35, 35)
+	        }));
+	        markerSearchDeparture.setPosition(placeDeparture.geometry.location);
+	        markerSearchDeparture.setVisible(true);
+	    
+	        var address = '';
+	        if (placeDeparture.address_components) {
+	            address = [
+	              (placeDeparture.address_components[0] && placeDeparture.address_components[0].short_name || ''),
+	              (placeDeparture.address_components[1] && placeDeparture.address_components[1].short_name || ''),
+	              (placeDeparture.address_components[2] && placeDeparture.address_components[2].short_name || '')
+	            ].join(' ');
+	        }
+	    
+	        infowindowDeparture.setContent('<div><strong>' + placeDeparture.name + '</strong><br>' + address);
+	        infowindowDeparture.open(mapDeparture, markerSearchDeparture);
+
+	        });
 			// manually test by adding few markers 
 			// myMarkerDeparture = new google.maps.Marker({
 			//     position: new google.maps.LatLng(17.435, 78.380),
@@ -196,14 +226,18 @@
 			// Current Lat: 17.435 Current Lng: 78.380
 			// remove the current user from the markers list.. so that he can see himself separately
 			for( var i = 0; i < all_neighbours_departure.length; i++){ 
-			   if ( all_neighbours_departure[i].lat_dep_user === changed_my_pickup_lat && 
-			   		all_neighbours_departure[i].lng_dep_user === changed_my_pickup_lng) {
+			   if ( (all_neighbours_departure[i].lat_dep_user === changed_my_pickup_lat && 
+			   		all_neighbours_departure[i].lng_dep_user === changed_my_pickup_lng) ||
+			   		(all_neighbours_departure[i].lat_dep_user === 0.1 && 
+			   		all_neighbours_departure[i].lng_dep_user === 0.1)
+			   	) 
+			   {
 			     all_neighbours_departure.splice(i, 1); 
 			   }
 			}
 
 			// Create an array of alphabetical characters used to label the markers.
-			  var labels = 'BACDEFGHIJKLMNOPQRSTUVWXYZ';
+			  // var labels = 'BACDEFGHIJKLMNOPQRSTUVWXYZ';
 
 			  // Add some markers to the map.
 			  // Note: The code uses the JavaScript Array.prototype.map() method to
@@ -221,11 +255,74 @@
 			markerClusterDeparture = new MarkerClusterer(mapDeparture, markersDeparture,
 			      {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 
+/////////////////////// ARRIVAL MAP Starts from here //////////////////////////////////////////////
+
+
 		    mapArrival = new google.maps.Map(document.getElementById('map-canvas-arrival'), {
-			    zoom: 10,
+			    zoom: 15,
 			    center: new google.maps.LatLng(changed_my_drop_lat, changed_my_drop_lng),
 			    mapTypeId: google.maps.MapTypeId.ROADMAP
 			});
+
+
+		    var inputArrival = document.getElementById('pac-input-arrival');
+		    mapArrival.controls[google.maps.ControlPosition.TOP_LEFT].push(inputArrival);
+
+		    var autocompleteArrival = new google.maps.places.Autocomplete(inputArrival);
+		    autocompleteArrival.bindTo('bounds', mapArrival);
+
+		    var infowindowArrival = new google.maps.InfoWindow();
+		    markerSearchArrival = new google.maps.Marker({
+		        map: mapArrival,
+		        anchorPoint: new google.maps.Point(0, -29),
+		        draggable: true
+		    });
+
+	    	autocompleteArrival.addListener('place_changed', function() {
+	        infowindowArrival.close();
+	        markerSearchArrival.setVisible(false);
+	        var placeArrival = autocompleteArrival.getPlace();
+	        if (!placeArrival.geometry) {
+	            window.alert("Autocomplete's returned place contains no geometry");
+	            return;
+	        }
+	  
+	        // If the place has a geometry, then present it on a map.
+	        if (placeArrival.geometry.viewport) {
+	            mapArrival.fitBounds(placeArrival.geometry.viewport);
+	        } else {
+	            mapArrival.setCenter(placeArrival.geometry.location);
+	            // changed_my_drop_lat = placeArrival.geometry.location.lat();
+	            // changed_my_drop_lng = placeArrival.geometry.location.lng();
+	            mapArrival.setZoom(17);
+	        }
+	        // console.log(placeArrival.geometry.location.lat());
+	        changed_my_drop_lat = placeArrival.geometry.location.lat();
+	        changed_my_drop_lng = placeArrival.geometry.location.lng();
+	        markerSearchArrival.setIcon(({
+	            url: placeArrival.icon,
+	            size: new google.maps.Size(71, 71),
+	            origin: new google.maps.Point(0, 0),
+	            anchor: new google.maps.Point(17, 34),
+	            scaledSize: new google.maps.Size(35, 35)
+	        }));
+	        markerSearchArrival.setPosition(placeArrival.geometry.location);
+	        markerSearchArrival.setVisible(true);
+	    
+	        var address = '';
+	        if (placeArrival.address_components) {
+	            address = [
+	              (placeArrival.address_components[0] && placeArrival.address_components[0].short_name || ''),
+	              (placeArrival.address_components[1] && placeArrival.address_components[1].short_name || ''),
+	              (placeArrival.address_components[2] && placeArrival.address_components[2].short_name || '')
+	            ].join(' ');
+	        }
+	    
+	        infowindowArrival.setContent('<div><strong>' + placeArrival.name + '</strong><br>' + address);
+	        infowindowArrival.open(mapArrival, markerSearchArrival);
+
+	        });
+
 
 			// myMarkerArrival = new google.maps.Marker({
 			//     position: new google.maps.LatLng(changed_my_drop_lat, changed_my_drop_lng),
@@ -233,9 +330,13 @@
 			// });
 
 			for( var i = 0; i < all_neighbours_arrival.length; i++){ 
-			   if ( all_neighbours_arrival[i].lat_arr_user === changed_my_drop_lat && 
-			   		all_neighbours_arrival[i].lng_arr_user === changed_my_drop_lng) {
-			     all_neighbours_arrival.splice(i, 1); 
+			   if ( (all_neighbours_arrival[i].lat_arr_user === changed_my_drop_lat && 
+			   		all_neighbours_arrival[i].lng_arr_user === changed_my_drop_lng) ||
+			   		(all_neighbours_arrival[i].lat_arr_user === 0.1 && 
+			   		all_neighbours_arrival[i].lng_arr_user === 0.1)
+			   		) 
+			   {
+			     	all_neighbours_arrival.splice(i, 1); 
 			   }
 			}
 
@@ -252,6 +353,8 @@
 			if(navigator.geolocation){
 				navigator.geolocation.getCurrentPosition(setCurrentLocationArrival);
 				navigator.geolocation.getCurrentPosition(setCurrentLocationDeparture);
+				navigator.geolocation.getCurrentPosition(setCurrentLocationDepartureSearch);
+				navigator.geolocation.getCurrentPosition(setCurrentLocationArrivalSearch);
 			}
 			else
 			{
@@ -282,6 +385,22 @@
 			myMarkerDeparture.setMap(mapDeparture);
 		}
 
+		function setCurrentLocationDepartureSearch(position){
+			// Add a marker clusterer to manage the markers.
+			google.maps.event.addListener(markerSearchDeparture, 'dragend', function (evt) {
+		    document.getElementById('id-current-departure').innerHTML = '<p>Marker dropped: Current Lat: ' + evt.latLng.lat().toFixed(3) + ' Current Lng: ' + evt.latLng.lng().toFixed(3) + '</p>';
+		 		changed_my_pickup_lat = evt.latLng.lat();
+		 		changed_my_pickup_lng = evt.latLng.lng();
+			});
+
+			google.maps.event.addListener(markerSearchDeparture, 'dragstart', function (evt) {
+			    document.getElementById('id-current-departure').innerHTML = '<p>Currently dragging marker...</p>';
+			});
+
+			mapDeparture.setCenter(markerSearchDeparture.position);
+			markerSearchDeparture.setMap(mapDeparture);
+		}
+
 		function setCurrentLocationArrival(position){
 			//console.log(changed_my_drop_lat, changed_my_drop_lng)
 			myMarkerArrival = new google.maps.Marker({
@@ -303,6 +422,22 @@
 
 			mapArrival.setCenter(myMarkerArrival.position);
 			myMarkerArrival.setMap(mapArrival);
+		}
+
+		function setCurrentLocationArrivalSearch(position){
+			//console.log(changed_my_drop_lat, changed_my_drop_lng)
+			google.maps.event.addListener(markerSearchArrival, 'dragend', function (evt) {
+		    document.getElementById('id-current-arrival').innerHTML = '<p>Marker dropped: Current Lat: ' + evt.latLng.lat().toFixed(3) + ' Current Lng: ' + evt.latLng.lng().toFixed(3) + '</p>';
+		 		changed_my_drop_lat = evt.latLng.lat();
+		 		changed_my_drop_lng = evt.latLng.lng();
+			});
+
+			google.maps.event.addListener(markerSearchArrival, 'dragstart', function (evt) {
+			    document.getElementById('id-current-arrival').innerHTML = '<p>Currently dragging marker...</p>';
+			});
+
+			mapArrival.setCenter(markerSearchArrival.position);
+			markerSearchArrival.setMap(mapArrival);
 		}
 
 		$('#id-save-my-location-departure').on('click', function(){
