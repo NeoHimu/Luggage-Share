@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "moment": "^2.24.0",
+    "snazzy-info-window": "^1.1.1",
     "waypoints": "^4.0.1"
   },
   "devDependencies": {},

@@ -156,6 +156,7 @@
 		    var markerSearchArrival=null;
 
 	    function initMap(){
+/////////////////////// DEPARTURE MAP Starts from here //////////////////////////////////////////////
 		    // console.log({{pickup_airport_lat}}, {{pickup_airport_lng}});
 		    mapDeparture = new google.maps.Map(document.getElementById('map-canvas-departure'), {
 			    zoom: 15,
@@ -244,10 +245,19 @@
 			  // create an array of markers based on a given "locations" array.
 			  // The map() method here has nothing to do with the Google Maps API.
 			markersDeparture = all_neighbours_departure.map(function(neighbour, i) {
-			    return new google.maps.Marker({
+				var marker = new google.maps.Marker({
 			      position: {lat:neighbour.lat_dep_user, lng:neighbour.lng_dep_user},
 			      label: neighbour.author+""
 			    });
+			    var content = "<p>hello</p> <button type='buttton' onclick='startChat()'>Chat</button>";
+			    var infowindow = new google.maps.InfoWindow(); 
+			    google.maps.event.addListener(marker,'click', (function(marker,content,infowindow){ 
+				    return function() {
+				        infowindow.setContent(content);
+				        infowindow.open(mapDeparture, marker);
+				    };
+				})(marker,content,infowindow));  
+			    return marker;
 			  });
 			//manually add few markers near the actual markers
 			// markersDeparture.push(myMarkerDeparture);
@@ -362,6 +372,10 @@
 			}
 		}
 
+		function startChat(){
+			alert("Chat window is open!");
+		}
+//// Helps in changing the already set marker
 		function setCurrentLocationDeparture(position){
 			// Add a marker clusterer to manage the markers.
 			console.log("departure ", changed_my_pickup_lat, changed_my_pickup_lng)
@@ -385,6 +399,7 @@
 			myMarkerDeparture.setMap(mapDeparture);
 		}
 
+//// helps in setting a new marker obtained after searching the name of the place
 		function setCurrentLocationDepartureSearch(position){
 			// Add a marker clusterer to manage the markers.
 			google.maps.event.addListener(markerSearchDeparture, 'dragend', function (evt) {
@@ -401,6 +416,7 @@
 			markerSearchDeparture.setMap(mapDeparture);
 		}
 
+//// Helps in changing the already set marker
 		function setCurrentLocationArrival(position){
 			//console.log(changed_my_drop_lat, changed_my_drop_lng)
 			myMarkerArrival = new google.maps.Marker({
@@ -424,6 +440,7 @@
 			myMarkerArrival.setMap(mapArrival);
 		}
 
+//// helps in setting a new marker obtained after searching the name of the place
 		function setCurrentLocationArrivalSearch(position){
 			//console.log(changed_my_drop_lat, changed_my_drop_lng)
 			google.maps.event.addListener(markerSearchArrival, 'dragend', function (evt) {
